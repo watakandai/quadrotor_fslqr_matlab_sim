@@ -1,0 +1,134 @@
+%% Reference Step/Impulse/Sin Input
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Reference Input                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --------------------------- set Time  --------------------------------% 
+timedata = [0 20 40]; tf = 60; ti = 0.01; stepdata = [1 0 1];
+% ------------------------- set Reference ------------------------------% 
+freq=0.5; acc=1.4804; mag=acc*10^3/(2*pi*freq)^2;
+% refx = step_tr(timedata,stepdata,ti,tf);
+refx = 0;
+% refy = step_tr(timedata,stepdata,ti,tf);
+refy = sin_tr(freq,mag,ti,tf); 
+% refz = step_tr(timedata,stepdata,ti,tf);
+refz = 0;
+refPos = abv(refx,refy,refz); refVel = abv(0,0,0); refAng = abv(0,0,0); refAngRate = abv(0,0,0);
+ref = abv(refPos,refVel,refAng,refAngRate);
+% ------------------------- set Dist & Noise ---------------------------% 
+dist = abv(0,0,0,0);
+noiseTrans = abv(0,0,0,0,0,0);
+noiseAngle = abv(0,0,0,0,0,0);
+noise = abv(noiseTrans,noiseAngle);
+% --------------------------- Time Response ----------------------------% 
+y = trsp(clp_ic,abv(ref,dist,noise),tf,ti);
+% ------------------------------- Figures ------------------------------% 
+figure('Position',[1921 97 1280 907])
+set(gcf, 'Name', 'States @ Step Inputs');
+subplot(2,2,1);
+vplot(sel(y,1,1),'r-',sel(y,2,1),'c--',sel(y,3,1),'m-.',refy,'g:')
+legend('x','y','z','ref');
+subplot(2,2,2); 
+vplot(sel(y,4,1),'r-', sel(y,5,1),'c--', sel(y,6,1),'m-.')
+legend('u','v','w');
+subplot(2,2,3); 
+vplot(sel(y,7,1),'r-', sel(y,8,1),'c--', sel(y,9,1),'m-.')
+legend('ph','th','ps');
+subplot(2,2,4); 
+vplot(sel(y,10,1),'r-', sel(y,11,1),'c--', sel(y,12,1),'m-.')
+legend('p','q','r');
+% % Input States @ Step Inputs
+% figure
+% set(gcf, 'Name', ' Inputs @ Step Inputs');
+% vplot(sel(y,1,1),'r-',sel(y,2,1),'c--',sel(y,3,1),'m-.', sel(y,4,1),'y-.')
+% legend('f','\tau_x','\tau_y','\tau_z');
+%% Disturbance Step/Impulse/Sin Input
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Disturbance Input                           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --------------------------- set Time  --------------------------------% 
+timedata = 0; tf = 10; ti = 0.01; t=[timedata:ti:tf]; stepdata = 1;
+% ------------------------- set Reference ------------------------------% 
+refPos = abv(0,0,0); refVel = abv(0,0,0); refAng = abv(0,0,0); refAngRate = abv(0,0,0);
+Ref = abv(refPos,refVel,refAng,refAngRate);
+% ---------------------------- set Noise -------------------------------% 
+noiseTrans = abv(0,0,0,0,0,0);
+noiseAngle = abv(0,0,0,0,0,0);
+Noise = abv(noiseTrans,noiseAngle);
+% ------------------------- set Disturbance ----------------------------% 
+freq=0.1;     acc=1.4804;     mag=acc*10^3/(2*pi*freq)^2;
+% dist = vpck(wgn(length(t),1,mag) , t');
+% Dist = abv(dist,dist,dist,dist);
+% dist = step_tr(timedata,stepdata,ti,tf);
+dist = sin_tr(2*pi*freq,mag,ti,tf);
+Dist = abv(dist,dist,dist,dist);
+y1 = trsp(clp_ic,abv(Ref,Dist,Noise),tf,ti); % impulse
+freq=0.5;     acc=1.4804;     mag=acc*10^3/(2*pi*freq)^2;
+dist = sin_tr(freq,mag,ti,tf);
+Dist = abv(dist,dist,dist,dist);
+y2 = trsp(clp_ic,abv(Ref,Dist,Noise),tf,ti); % impulse
+freq=1;     acc=1.4804;     mag=acc*10^3/(2*pi*freq)^2;
+dist = sin_tr(freq,mag,ti,tf);
+Dist = abv(dist,dist,dist,dist);
+y3 = trsp(clp_ic,abv(Ref,Dist,Noise),tf,ti); % impulse
+freq=5;     acc=1.4804;     mag=acc*10^3/(2*pi*freq)^2;
+dist = sin_tr(freq,mag,ti,tf);
+Dist = abv(dist,dist,dist,dist);
+y4 = trsp(clp_ic,abv(Ref,Dist,Noise),tf,ti); % impulse
+% ------------------------------- Figures ------------------------------% 
+% Comparing Different Frequency
+%{%
+figure('Position',[1921 97 1280 907])
+set(gcf, 'Name', 'States @ Impulse Inputs');
+vplot(sel(y1,2,1),'r--', sel(y2,2,1),'g',sel(y3,2,1),'b',sel(y4,2,1),'y')
+legend('0.1','0.5','1.0','5.0');
+
+subplot(2,2,1);
+vplot(sel(y1,1,1),'r-',sel(y1,2,1),'c--',sel(y1,3,1),'m-.')
+legend('x','y','z'); xlabel('Time [s]'); ylabel('Position [m]'); title('0.1 [Hz]');
+subplot(2,2,2);
+vplot(sel(y2,1,1),'r-',sel(y2,2,1),'c--',sel(y2,3,1),'m-.')
+legend('x','y','z');xlabel('Time [s]'); ylabel('Position [m]'); title('0.5 [Hz]');
+subplot(2,2,3);
+vplot(sel(y3,1,1),'r-',sel(y3,2,1),'c--',sel(y3,3,1),'m-.')
+legend('x','y','z');xlabel('Time [s]'); ylabel('Position [m]'); title('1 [Hz]');
+subplot(2,2,4);
+vplot(sel(y4,1,1),'r-',sel(y4,2,1),'c--',sel(y4,3,1),'m-.')
+legend('x','y','z');xlabel('Time [s]'); ylabel('Position [m]'); title('5 [Hz]');
+%}
+% ALL States
+%{
+subplot(2,2,1);
+vplot(sel(y,1,1),'r-',sel(y,2,1),'c--',sel(y,3,1),'m-.')
+legend('x','y','z');
+subplot(2,2,2); 
+vplot(sel(y,4,1),'r-', sel(y,5,1),'c--', sel(y,6,1),'m-.')
+legend('u','v','w');
+subplot(2,2,3); 
+vplot(sel(y,7,1),'r-', sel(y,8,1),'c--', sel(y,9,1),'m-.')
+legend('ph','th','ps');
+subplot(2,2,4); 
+vplot(sel(y,10,1),'r-', sel(y,11,1),'c--', sel(y,12,1),'m-.')
+legend('p','q','r');
+%}
+% ----------------------- Fast Fourier Transform ------------------------%
+%{
+[varydata,rowpoint,indv] = vunpck(sel(y,3,1));
+L=length(t);Fs=100;
+NFFT = 2^nextpow2(L); % Next power of 2 from length of y
+Y = fft(varydata,NFFT)/L;
+f = Fs/2*linspace(0,1,NFFT/2+1);
+% Plot single-sided amplitude spectrum.
+figure
+plot(f,2*abs(Y(1:NFFT/2+1))) 
+title('Single-Sided Amplitude Spectrum of y(t)')
+xlabel('Frequency (Hz)')
+ylabel('|Y(f)|')
+%}
+%%
+% Input States @ Impulse Inputs
+%{
+figure
+set(gcf, 'Name', 'Inputs @ Impulse Inputs');
+vplot(sel(y,1,1),'r-',sel(y,2,1),'c--',sel(y,3,1),'m-.', sel(y,4,1),'y-.')
+legend('f','\tau_x','\tau_y','\tau_z');
+%}
