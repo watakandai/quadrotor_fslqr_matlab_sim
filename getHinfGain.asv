@@ -1,7 +1,5 @@
 %% Weight -> xdot=Ax+Bu, y=Cx;
 % draw general plant on a piece of paper
-% xdot_in = Ain*xin, Bin*u*in;
-x 
 
 
 %% build general plant
