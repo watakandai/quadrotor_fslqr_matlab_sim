@@ -4,10 +4,12 @@ for i=1:(length(T))     % t=0 ~ t=t_end
     X_data(:,i)  = X;                       % state x
     Xctr_data(:,i) = Xctr;                  % state of controller
     U_data(:,i)  = U;                       % input u
+    Umotor_data(:,i) = Umotor;
     T_data(:,i)  = i*dt;                    % time  t
     
-    % Runge kutta for Plant
+    % ------------------------- For Plant ---------------------------%
     % NonlinearDynamics (Equation of Motion)
+    % change U to Umotor. U is not considering first order lag
     dX1 = getNonlineardX(X, U)*dt;
     dX2 = getNonlineardX(X+dX1/2, U)*dt;
     dX3 = getNonlineardX(X+dX2/2, U)*dt;
@@ -24,6 +26,7 @@ for i=1:(length(T))     % t=0 ~ t=t_end
     dXctr4 =getControllerdX(Xctr+dXctr3, E, Actr,Bctr)*dt;  
     Xctr = Xctr+(dXctr1+2*dXctr2+2*dXctr3+dXctr4)/6;
     U = Cctr*Xctr + Dctr*E ;
+    % Umotor = alpha*U + (1-alpha)*Umotor;
     % ---------------------------- For LQR ------------------------------%
     % Xref(1,1) = Xref_sin(:,i);
     % U = K*(Xref-X)+ U0;

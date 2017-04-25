@@ -39,6 +39,7 @@ X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
 U0 = [m*g 0 0 0]';
 X = X0;
 U = U0;
+UMotor = [m*g 0 0 0]';
 % Reference States
 Xref = [1 1 1 0 0 0 0 0 0 0 0 0]';
 amp = 0.3;
@@ -47,7 +48,8 @@ Xref_sin = amp * sin(2*pi*f*T);
 % boxes to store data
 T_data = T;                                    % time t
 X_data = zeros(length(X), length(T_data));     % state x
-U_data = zeros(length(U), length(T_data));     % input u
+U_data = zeros(length(U), length(T_data));     % input u to the motor
+Umotor_data = zeros(length(U), length(T_data));     % input umotor to the plant
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,7 +64,13 @@ checkSingularValue
 % rungekutta simulation
 Xctr_data = zeros(size(Actr,1),length(T_data));
 Xctr = zeros(size(Actr,1),1);
+
+% motor first order lag, https://fenix.tecnico.ulisboa.pt/downloadFile/395139421061/EXTENDED%20ABSTRACT.pdf
+Tf = 0.1;
+alpha=dt/(Tf+dt);
 rungekutta
+
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
@@ -280,3 +288,4 @@ draw_step_impulse_diagram
 %% draw poles
 draw_poles_diagram
 %}
+
