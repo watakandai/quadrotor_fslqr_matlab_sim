@@ -8,36 +8,18 @@
 % [Ax, Bx, Cx, Dx] = tf2ss(num, den);
 
 %% build general plant
-% G = [A B1 B2;
-%     C1 D11 D12;
-%     C2 D21 D22];
-
-% for xyz,uvw
-% xdot = A*x + B2*y
-% z = C*x + D*y
-
-% for u
-% xdot = A*x + B2*u
-% z = C*x + D*u
-
-% for y
-% xdot = A*x + B1*w + B2*u
-% y = C*x +         + D2*u
-
-% Turbulance changes u, v, w
 
 systemnames = ' P Ws Wt Wd';
-inputvar =  '[ dist{6}; control{4} ]';
-% outputvar = '[ Ws; Wt; -P(1:3)-Wn; -P(4:12)]';     % Ws=7, Wt=4
-outputvar = '[ Ws; Wt; -P]';     % Ws=7, Wt=4
-input_to_P = '[ dist; control ]';
-input_to_Ws = '[ P ]';
+inputvar =  '[ dist{6}; noise{}; control{4} ]';
+outputvar = '[ Ws; Wt; -P]';
+input_to_P = '[ Wd; control ]';
+input_to_Ws = '[ P(1:6) ]';
 input_to_Wt = '[ control ]';
 input_to_Wd = '[ dist ]';
 sysoutname = 'G';
 cleanupsysic = 'yes';
 sysic;
-[K, CL, gamma] = hinfsyn(G,12,4,1,10,0.01,2);
+[K, CL, gamma] = hinfsyn(G,12,4,1,10,0.001,2);
 
 %% think of if hinfsyn cannot solve?
 % epsilon1

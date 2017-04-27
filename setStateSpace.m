@@ -38,7 +38,7 @@ B = [0     0       0       0;
      0     0       1/Iyy   0;
      0     0       0       1/Izz];
 C = eye(12); 
-D = zeros(size(C,1), size(B,2));
+D = 0.001*ones(size(C,1), size(B,2));
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %   fwx,    fwy,    fwz,    twx,    twy,    twz
@@ -59,7 +59,7 @@ Dd = [0        0       0       0       0       0;
 % https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
 % a lot to think of
   
-B = [Dd B]; D=[zeros(size(Dd,1),size(Dd,2)) D];
+B = [Dd B]; D=[0.001*ones(size(Dd,1),size(Dd,2)) D];
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
 P_g = frsp(P,w);

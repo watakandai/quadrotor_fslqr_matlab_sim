@@ -9,13 +9,14 @@
 
 %% build general plant
 
-systemnames = ' P Ws Wt Wd';
-inputvar =  '[ dist{6}; control{4} ]';
-outputvar = '[ Ws; Wt; -P]';
+systemnames = ' P Ws Wt Wd Wn';
+inputvar =  '[ dist{6}; noise{12}; control{4} ]';
+outputvar = '[ Ws; Wt; -Wn-P]';
 input_to_P = '[ Wd; control ]';
-input_to_Ws = '[ P(1:6) ]';
+input_to_Ws = '[ Wn(1:6)+P(1:6) ]';
 input_to_Wt = '[ control ]';
 input_to_Wd = '[ dist ]';
+input_to_Wn = '[ noise ]';
 sysoutname = 'G';
 cleanupsysic = 'yes';
 sysic;
