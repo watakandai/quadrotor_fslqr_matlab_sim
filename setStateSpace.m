@@ -54,8 +54,12 @@ Dd = [0        0       0       0       0       0;
       0        0       0       1/Ixx   0       0;
       0        0       0       0       1/Iyy   0;
       0        0       0       0       0       1/Izz];
-
-    B = [Dd B]; D=[zeros(size(Dd,1),size(Dd,2)) D];
+% this all should be 1. as disturbances applied will be the dryden wind
+% model
+% https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
+% a lot to think of
+  
+B = [Dd B]; D=[zeros(size(Dd,1),size(Dd,2)) D];
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
 P_g = frsp(P,w);

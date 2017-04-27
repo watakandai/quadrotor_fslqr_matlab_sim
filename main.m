@@ -55,6 +55,7 @@ Umotor_data = zeros(length(U), length(T_data));     % input umotor to the plant
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % setWeight for desired output and input
 setWeights
+
 % Calculate Control Gain K
 % getLQRGain;
 getHinfGain
