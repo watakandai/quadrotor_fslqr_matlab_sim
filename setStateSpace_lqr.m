@@ -58,9 +58,7 @@ Dd = [0        0       0       0       0       0;
 % model
 % https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
 % a lot to think of
-  
-B = [Dd B]; D=[0.001*ones(size(Dd,1),size(Dd,2)) D];
-% B = [Dd B]; D=[zeros(size(Dd,1),size(Dd,2)) D]
+
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
 % % Bode Diagram of Plant P
