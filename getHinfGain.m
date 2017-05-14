@@ -26,7 +26,7 @@ SYS = ss(AG,BG, CG, DG);
 pzplot(SYS)
 spoles(G)
 spoles(Ws)
-[K, CL, gamma] = hinfsyn(G,12,4,1,10,0.001,2);
+[K, CL, gamma] = hinfsyn(G,12,4,1,10,0.01,2);
 
 %% think of if hinfsyn cannot solve?
 % epsilon1

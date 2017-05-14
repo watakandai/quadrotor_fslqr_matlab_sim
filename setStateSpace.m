@@ -37,8 +37,8 @@ B = [0     0       0       0;
      0     0       1/Iyy   0;
      0     0       0       1/Izz];
 C = eye(12); 
-% D = 0.001*ones(size(C,1), size(B,2));
-D = zeros(size(C,1), size(B,2));
+D = 0.001*ones(size(C,1), size(B,2));
+% D = zeros(size(C,1), size(B,2));
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %   fwx,    fwy,    fwz,    twx,    twy,    twz

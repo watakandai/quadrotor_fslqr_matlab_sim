@@ -3,7 +3,8 @@
 %                       Wn (Phase Lag Filter)                           %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 W=logspace(-2,4,100);
-gain=1; f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
+gain=2; f1=1; f2=10;
+    w1=2*pi*f1; w2=2*pi*f2; gain=gain*(w2/w1); num=[1 w1]; den=[1 w2];
     sys = tf(gain*num,den);
     magn = bode(sys,W); magn = squeeze(magn); magn = 20*log10(magn);
     wn = nd2sys(num,den,gain);
@@ -20,7 +21,8 @@ xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('W_n');
 %                       Wd (Phase Lag Filter)                           %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 W=logspace(-2,4,100);
-gain=1; f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
+gain=2; f1=1; f2=10;
+w1=2*pi*f1; w2=2*pi*f2; gain=gain*(w2/w1); num=[1 w1]; den=[1 w2];
 wd = nd2sys(num,den,gain);
 wds=daug(wd,wd,wd);
 Wd=daug(wds,wds);
@@ -144,7 +146,7 @@ figure
 set(gcf, 'Name', 'Performance Weighting Function');
 semilogx(W/(2*pi),magX, W/(2*pi),magY, W/(2*pi),magZ, W/(2*pi),magU, W/(2*pi),magV,  W/(2*pi),magW);
 xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
-legend('{\itW_x}','{\itW_y}','{\itW_z}','{\itW_u}','{\itW_v}','{\itW_w}'); grid on; xlim([10^(-2) 10^(1)]);ylim([-20 30]);
+legend('{\itW_x}','{\itW_y}','{\itW_z}','{\itW_u}','{\itW_v}','{\itW_w}'); grid on; xlim([10^(-2) 10^(1)]);ylim([-20 20]);
 
 % Plot of Inverse of Performance Weighting Function (sensitivity)
 %{
