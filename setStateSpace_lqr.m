@@ -61,16 +61,16 @@ Dd = [0        0       0       0       0       0;
 
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
-% % Bode Diagram of Plant P
-% figure
-% P_g = frsp(P,w);
-% vplot('bode',P_g);
-% % poles and pole diagram of Plant P
-% Pss = ss(A,B,C,D);
-% figure
-% pzmap(Pss);
-% % Transfer Function of P (from 4inputs to 12 outputs)
-% tf(Pss)
+% Bode Diagram of Plant P
+figure
+P_g = frsp(P,w);
+vplot('bode',P_g);
+% poles and pole diagram of Plant P
+Pss = ss(A,B,C,D);
+figure
+pzmap(Pss);
+% Transfer Function of P (from 4inputs to 12 outputs)
+tf(Pss)
 %% Checking for Controllability & Observability
 co=ctrb(A,B);
 if rank(co)==size(A)
@@ -82,6 +82,7 @@ else
       disp('This system is stabilizable.')
    end
 end
+Controllability = rank(co)
 obs=obsv(A,C);
 if rank(obs)==size(A)
    disp('This system is observable.')
@@ -92,4 +93,5 @@ else
       disp('This system is detectable.')
    end
 end
+Obervability = rank(obs)
 
