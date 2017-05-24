@@ -37,8 +37,8 @@ B = [0     0       0       0;
      0     0       1/Iyy   0;
      0     0       0       1/Izz];
 C = eye(12); 
-D = 0.001*ones(size(C,1), size(B,2));
-% D = zeros(size(C,1), size(B,2));
+% D = 0.001*ones(size(C,1), size(B,2));
+D = zeros(size(C,1), size(B,2));
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %   fwx,    fwy,    fwz,    twx,    twy,    twz
@@ -58,24 +58,27 @@ Dd = [0        0       0       0       0       0;
 % model
 % https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
 % a lot to think of
-  
-B = [Dd B]; D=[0.001*ones(size(Dd,1),size(Dd,2)) D];
-% B = [Dd B]; D=[zeros(size(Dd,1),size(Dd,2)) D]
+
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
 % Bode Diagram of Plant P
 figure
+% P_g = frsp(P,w);
+% vplot('bode',P_g);
+
+% poles and pole diagram of Plant P
 Pss = ss(A,B,C,D);
 for i=1:size(B,2)
     for j=1:size(A,1)
-%         bode(Pss(j,i),w); 
+        bode(Pss(j,i),w); 
         hold on
     end
 end
+xlabel(); ylabel();
 
-% poles and pole diagram of Plant P
 figure
 pzmap(Pss);
+
 % Transfer Function of P (from 4inputs to 12 outputs)
 tf(Pss)
 %% Checking for Controllability & Observability
@@ -89,6 +92,7 @@ else
       disp('This system is stabilizable.')
    end
 end
+Controllability = rank(co)
 obs=obsv(A,C);
 if rank(obs)==size(A)
    disp('This system is observable.')
@@ -99,4 +103,5 @@ else
       disp('This system is detectable.')
    end
 end
+Obervability = rank(obs)
 

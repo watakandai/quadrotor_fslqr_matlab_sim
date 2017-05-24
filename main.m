@@ -25,7 +25,7 @@ setLabels
 % Physical Parameters of Quadrotor 
 setParameters
 % State Space A,B,C,D
-% setStateSpace
+setStateSpace
 setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Initial States & Reference States                    %
@@ -68,8 +68,8 @@ getLQRGain;
 % Xctr = zeros(size(Actr,1),1);
 
 % motor first order lag, https://fenix.tecnico.ulisboa.pt/downloadFile/395139421061/EXTENDED%20ABSTRACT.pdf
-Tf = 0.1;
-alpha=dt/(Tf+dt);
+% Tf = 0.1;
+% alpha=dt/(Tf+dt);
 rungekutta
 
 
@@ -77,7 +77,14 @@ rungekutta
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-drawFigures
+% f, tx, ty, tz
+draw_input
+% phi, th, psi, p, q, r
+draw_rotational_motion
+% x, y, z, u, v, w,
+draw_translational_motion
+
+% drawFigures
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              From Excel                                %
@@ -85,12 +92,6 @@ drawFigures
 % VRexcelData
 %%
 %{%
-% f, tx, ty, tz
-draw_input
-% phi, th, psi, p, q, r
-draw_rotational_motion
-% x, y, z, u, v, w,
-draw_translational_motion
 %% Define Systems
 systems = tf(ss(A, B, C, D));
 systems_lqr = tf(ss(A-B*K_lqr, B, C, D));

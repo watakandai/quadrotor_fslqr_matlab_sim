@@ -68,12 +68,13 @@ figure
 Pss = ss(A,B,C,D);
 for i=1:size(B,2)
     for j=1:size(A,1)
-%         bode(Pss(j,i),w); 
+        bode(Pss(j,i),w); 
         hold on
     end
 end
 
 % poles and pole diagram of Plant P
+Pss = ss(A,B,C,D);
 figure
 pzmap(Pss);
 % Transfer Function of P (from 4inputs to 12 outputs)

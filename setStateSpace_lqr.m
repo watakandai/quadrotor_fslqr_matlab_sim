@@ -62,13 +62,22 @@ Dd = [0        0       0       0       0       0;
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
 % Bode Diagram of Plant P
-figure
-P_g = frsp(P,w);
-vplot('bode',P_g);
+% figure
+% P_g = frsp(P,w);
+% vplot('bode',P_g);
+
 % poles and pole diagram of Plant P
 Pss = ss(A,B,C,D);
+for i=1:size(B,2)
+    for j=1:size(A,1)
+        bode(Pss(j,i),w); 
+        hold on
+    end
+end
+
 figure
 pzmap(Pss);
+
 % Transfer Function of P (from 4inputs to 12 outputs)
 tf(Pss)
 %% Checking for Controllability & Observability
