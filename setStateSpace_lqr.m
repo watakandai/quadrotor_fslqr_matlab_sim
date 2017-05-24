@@ -80,6 +80,25 @@ pzmap(Pss);
 
 % Transfer Function of P (from 4inputs to 12 outputs)
 tf(Pss)
+
+tf1=tf([1],[1 1]);
+tf2=tf([1],[1 2 1]);
+tf3=tf([1],[1 3 3 1]);
+tf4=tf([1], [1 4 6 4 1]);
+systf=[ 0   0   tf4     0;
+        0   tf4 0       0;
+        tf2 0   0       0;
+        0   0   tf3     0;
+        0   tf3 0       0;
+        tf1 0   0       0;
+        0   tf2 0       0;
+        0   0   tf2     0;
+        0   0   0       tf2;
+        0   tf1 0       0;
+        0   0   tf1     0;
+        0   0   0       tf1];
+Pss = ss(systf);
+P = pck(Pss.A,Pss.B,Pss.C,Pss.D);
 %% Checking for Controllability & Observability
 co=ctrb(A,B);
 if rank(co)==size(A)

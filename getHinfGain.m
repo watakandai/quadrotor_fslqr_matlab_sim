@@ -9,6 +9,7 @@
 
 %% build general plant
 
+%{
 systemnames = ' P Ws Wt Wd Wn';
 inputvar =  '[ dist{6}; noise{12}; control{4} ]';
 outputvar = '[ Ws; Wt; -Wn-P]';
@@ -27,7 +28,21 @@ pzplot(SYS)
 spoles(G)
 spoles(Ws)
 [K, CL, gamma] = hinfsyn(G,12,4,1,10,0.01,2);
+%}
+%{
+systemnames = 'P Ws Wt';
+inputvar = '[dist{12}; control{4}]';
+outputvar = '[Ws; Wt; P + dist]';
+input_to_P = '[control]';
+input_to_Ws = '[P+dist]';
+input_to_Wt = '[P]';
+sysoutname = 'G';
+cleanupsysic='yes';
+sysic;
+[K,CL,GAM]=hinfsyn(G,12,4,1,10,0.01,2);
+%}
 
+[K,CL,GAM]=mixsyn(P,[],[],[]);
 %% think of if hinfsyn cannot solve?
 % epsilon1
 % ?g???ngeneral plant????

@@ -25,7 +25,7 @@ setLabels
 % Physical Parameters of Quadrotor 
 setParameters
 % State Space A,B,C,D
-setStateSpace
+% setStateSpace
 setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Initial States & Reference States                    %
@@ -55,11 +55,11 @@ Umotor_data = zeros(length(U), length(T_data));     % input umotor to the plant
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % setWeight for desired output and input
-setWeights
-
+% setWeights
+setWeightsNew
 % Calculate Control Gain K
-getLQRGain;
-% getHinfGain
+% getLQRGain;
+getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%

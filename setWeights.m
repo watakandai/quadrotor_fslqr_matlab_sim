@@ -28,18 +28,22 @@ Wd=daug(wds,wds);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                       Wt (Phase Lag Filter)                           %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-W=logspace(-2,4,100);
-gain=1.5; f=0.5; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2];
+W=logspace(-1,2,100);
+gain=0.5; f1=0.2; f2=0.6; w1=2*pi*f1;w2=2*pi*f2; gain=gain*(w2/w1);
+    num=[1 w1]; den=[1 w2]; 
     sys = tf(gain*num,den);
     magt = bode(sys,W); magt = squeeze(magt); magt = 20*log10(magt);
     wt = nd2sys(num,den,gain);
     Wt = daug(wt,wt,wt,wt);
+    
+%     s=zpk('s');
+%     Wt=gain*s^2*(s+w1)/(s+w2);
 
 %{%
 figure
 set(gcf, 'Name', 'Input Weights');
 semilogx(W,magt); grid on;
-xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('W_t');xlim([10^(-2) 10^(1)]);ylim([-20 30]);
+xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('W_t');xlim([10^(-1) 10^(2)]);ylim([-20 30]);
 %}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -48,13 +52,12 @@ xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('W_t');xlim([10^(-2) 10
 W=logspace(-2,4,100);
 Mag=zeros(length(W),length(X));
 % -------------------------------- wsX ---------------------------------% 
-gain=10; 
-%     % Phase Lead Filter
-%     f1=0.1; f2=0.3; w1=2*pi*f1;w2=2*pi*f2; gain=gain*(w2/w1);
-%     numLead=[1 w1]; denLead=[1 w2];
+gain=0.4; 
+    % Phase Lag Filter
+    f1=0.5; f2=2;  w1=2*pi*f1; w2=2*pi*f2; num=[1 w2]; den=[1 w1];
     % High Pass Filter
-    f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-%     num=conv(numLow,numLead); den=conv(denLow,denLead); 
+%     f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
+    % Use conv(num,num) for convolution
     sys = tf(gain*num,den);
     magX = bode(sys,W); magX = squeeze(magX); magX = 20*log10(magX); 
     wsX = nd2sys(num,den,gain);
