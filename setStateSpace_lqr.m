@@ -11,6 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% States
 %    x,  y,  z,  u,  v,  w, phi, th, psi, p, q,  r;
+%{
 A = [0   0   0   1   0   0   0   0   0   0   0   0;
      0   0   0   0   1   0   0   0   0   0   0   0;
      0   0   0   0   0   1   0   0   0   0   0   0;
@@ -23,6 +24,22 @@ A = [0   0   0   1   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0];
+ %}
+ep=10^(-6);
+%    x,  y,  z,  u,     v,      w,      phi,    th,     psi,    p,      q,      r;
+A = [0   0   0   1      -ep      ep      0       ep      -ep     0       0       0;
+     0   0   0   ep     1       -ep     -ep     0       ep      0       0       0;
+     0   0   0   -ep    ep      1       ep      -ep     0       0       0       0;
+     0   0   0   0      ep      -ep     0       -g      0       0       -ep     ep;
+     0   0   0   -ep    0       ep      g       0       0       ep      0       -ep;
+     0   0   0   ep     -ep     0       0       0       0       -ep     ep      0;
+     0   0   0   0      0       0       0       ep      0       1       0       ep;
+     0   0   0   0      0       0       -ep     0       0       0       1       -ep;
+     0   0   0   0      0       0       ep      0       0       0       ep      1;
+     0   0   0   0      0       0       0       0       0       0       ep      ep;
+     0   0   0   0      0       0       0       0       0       ep      0       ep;
+     0   0   0   0      0       0       0       0       0       ep      ep      0];
+ 
 %    f     tx      ty      tz
 B = [0     0       0       0;
      0     0       0       0;
@@ -37,6 +54,15 @@ B = [0     0       0       0;
      0     0       1/Iyy   0;
      0     0       0       1/Izz];
 C = eye(12); 
+% C = [1  0   0   0   0   0   0   0   0   0   0   0;
+%      0  1   0   0   0   0   0   0   0   0   0   0;
+%      0  0   1   0   0   0   0   0   0   0   0   0;
+%      0  0   0   0   0   0   0   0   0   1   0   0;
+%      0  0   0   0   0   0   0   0   0   0   1   0;
+%      0  0   0   0   0   0   0   0   0   0   0   1];
+%  C = [1  0   0   0   0   0   0   0   0   0   0   0;
+%      0  1   0   0   0   0   0   0   0   0   0   0;
+%      0  0   1   0   0   0   0   0   0   0   0   0];
 % D = 0.001*ones(size(C,1), size(B,2));
 D = zeros(size(C,1), size(B,2));
 
@@ -68,19 +94,20 @@ w=logspace(0,2,100);
 
 % poles and pole diagram of Plant P
 Pss = ss(A,B,C,D);
+%{
 for i=1:size(B,2)
     for j=1:size(A,1)
         bode(Pss(j,i),w); 
         hold on
     end
 end
-
+%}
 figure
 pzmap(Pss);
 
 % Transfer Function of P (from 4inputs to 12 outputs)
 tf(Pss)
-
+%{
 tf1=tf([1],[1 1]);
 tf2=tf([1],[1 2 1]);
 tf3=tf([1],[1 3 3 1]);
@@ -99,6 +126,7 @@ systf=[ 0   0   tf4     0;
         0   0   0       tf1];
 Pss = ss(systf);
 P = pck(Pss.A,Pss.B,Pss.C,Pss.D);
+%}
 %% Checking for Controllability & Observability
 co=ctrb(A,B);
 if rank(co)==size(A)
@@ -121,5 +149,5 @@ else
       disp('This system is detectable.')
    end
 end
-Obervability = rank(obs)
+Observability = rank(obs)
 

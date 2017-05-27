@@ -30,26 +30,19 @@ spoles(Ws)
 [K, CL, gamma] = hinfsyn(G,12,4,1,10,0.01,2);
 %}
 %{%
-systemnames = 'P Ws Wt Wn';
-inputvar = '[dist{4}; noise{12}; control{4}]';
-outputvar = '[Ws; Wt; P+Wn]';
-input_to_P = '[control+dist]';
-input_to_Ws = '[Wn(1:3)+P(1:3)]';
-input_to_Wt = '[control]';
-input_to_Wn = '[noise]';
+systemnames = 'P Ws Wt';
+inputvar = '[dist{12}; control{4}]';
+outputvar = '[Ws; Wt; P + dist]';
+input_to_P = '[control]';
+input_to_Ws = '[P+dist]';
+input_to_Wt = '[P]';
 sysoutname = 'G';
 cleanupsysic='yes';
 sysic;
 [K,CL,GAM]=hinfsyn(G,12,4,1,10,0.01,2);
-[Actr,Bctr,Cctr,Dctr]=unpck(K);
-%%
-spoles(K)
-omega=logspace(-2,6,100);
-clp_g=frsp(CL,omega);
-vplot('liv,lm',vsvd(clp_g))
-
 %}
 
+% [K,CL,GAM]=mixsyn(P,[],[],[]);
 %% think of if hinfsyn cannot solve?
 % epsilon1
 % ?g???ngeneral plant????
