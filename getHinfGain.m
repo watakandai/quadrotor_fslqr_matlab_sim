@@ -31,10 +31,10 @@ spoles(Ws)
 %}
 %{%
 systemnames = 'P Ws Wt Wn';
-inputvar = '[dist{4}; noise{12}; control{4}]';
-outputvar = '[Ws; Wt; P+Wn]';
-input_to_P = '[control+dist]';
-input_to_Ws = '[Wn(1:3)+P(1:3)]';
+inputvar = '[noise{4}; dist{12}; control{4}]';
+outputvar = '[Ws; Wt; -P-dist]';
+input_to_P = '[control+Wn]';
+input_to_Ws = '[dist(1:3)+P(1:3)]';
 input_to_Wt = '[control]';
 input_to_Wn = '[noise]';
 sysoutname = 'G';
@@ -42,6 +42,49 @@ cleanupsysic='yes';
 sysic;
 [K,CL,GAM]=hinfsyn(G,12,4,1,10,0.01,2);
 [Actr,Bctr,Cctr,Dctr]=unpck(K);
+
+figure
+omega = logspace(-2,6,100);
+CL_g = frsp(CL,omega);
+vplot('liv,lm',vsvd(CL_g))
+title('Singular Value Plot of CL')
+xlabel('Frequency (rad/sec)')
+ylabel('Magnitude')
+%}
+%{
+systemnames = 'P Ws Wt';
+inputvar = '[ dist{12}; control{4} ]';
+outputvar = '[ Ws; Wt; -P-dist ]';
+input_to_P = '[ control ]';
+input_to_Ws = '[ P(1:3)+dist(1:3) ]';
+input_to_Wt = '[ control]';
+sysoutname = 'G';
+cleanupsysic='yes';
+sysic;
+[K,CL,GAM]=hinfsyn(G,12,4,1,10,0.01,2);
+[Actr,Bctr,Cctr,Dctr]=unpck(K);
+%}
+
+systemnames = ' P ';
+inputvar = '[ref{12}; noise{4}; dist{12}; control{4} ]';
+outputvar = '[ P(1:3)+dist(1:3); ref-P-dist ]';
+input_to_P = '[ control+noise ]';
+sysoutname = 'sim_ic';
+cleanupsysic = 'yes';
+sysic
+
+figure
+clp=starp(sim_ic, K);
+omega=logspace(-4,2,100);
+Wp_g=frsp(Ws,omega);
+Wpi_g=minv(Wp_g);
+sen_loop=sel(clp,1:3,17:28);
+sen_g=frsp(sen_loop,omega);
+vplot('liv,lm', Wpi_g, 'm--', vnorm(sen_g), 'y-')
+title('CLOSED-LOOP Sensitivity Function')
+xlabel('Frequency [rad/s]'); ylabel('Magnitude');
+legend('Inverse Weighting function', ...
+        'Nominal Sensitivity function')
 %%
 spoles(K)
 omega=logspace(-2,6,100);

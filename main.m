@@ -32,7 +32,7 @@ setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 10;
+t_end = 5;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
@@ -50,7 +50,7 @@ Xref_sin = amp * sin(2*pi*f*T);
 T_data = T;                                    % time t
 X_data = zeros(length(X), length(T_data));     % state x
 U_data = zeros(length(U), length(T_data));     % input u to the motor
-Umotor_data = zeros(length(U), length(T_data));     % input umotor to the plant
+% Umotor_data = zeros(length(U), length(T_data));     % input umotor to the plant
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,6 +70,7 @@ Xctr = zeros(size(Actr,1),1);
 % motor first order lag, https://fenix.tecnico.ulisboa.pt/downloadFile/395139421061/EXTENDED%20ABSTRACT.pdf
 % Tf = 0.1;
 % alpha=dt/(Tf+dt);
+Dist = [0 0 0 0.05 0.05 0.05 0 0 0 0 0 0]';
 rungekutta
 
 
@@ -86,7 +87,7 @@ draw_translational_motion
 %%
 % OpenLoop Analysis (LQR)
 openLoop = tf(Pss*K_lqr);
-figure\
+figure
 for i=1:size(B,2)
     for j=1:size(A,1)
         bode(openLoop(j,i),w); 

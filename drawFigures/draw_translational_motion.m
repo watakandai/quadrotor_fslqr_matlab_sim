@@ -16,8 +16,11 @@ for i=1:numData
 end
 
 %%  3D
-% set(gcf, 'Name', '3D Position');
-% plot3(X_data(1,:), X_data(2,:), X_data(3,:))
-% xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
-% xlim([-2 2]); ylim([-2 2]); zlim([-2*2 2*2]);
-% grid on;
+figure
+set(gcf, 'Name', '3D Position');
+for n=1:length(T)
+    plot3(X_data(1,1:n), X_data(2,1:n), X_data(3,1:n)); grid on;
+    xlim([min(X_data(1,:)) max(X_data(1,:))]); ylim([min(X_data(2,:)) max(X_data(2,:))]); zlim([min(X_data(3,:)) max(X_data(3,:))]);
+    xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
+    drawnow;
+end

@@ -18,7 +18,7 @@ for i=1:(length(T))     % t=0 ~ t=t_end
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
     % ------------------------- For Hinfinity ---------------------------%
     % Difference between Ref and States
-    E = X;
+    E = Xref-X;
     % Runge kutta for Controller
     dXctr1 = getControllerdX(Xctr, E, Actr,Bctr)*dt;
     dXctr2 = getControllerdX(Xctr+dXctr1/2, E, Actr,Bctr)*dt;
@@ -28,6 +28,6 @@ for i=1:(length(T))     % t=0 ~ t=t_end
     U = Cctr*Xctr + Dctr*E ;
     % Umotor = alpha*U + (1-alpha)*Umotor;
     % ---------------------------- For LQR ------------------------------%
-    % Xref(1,1) = Xref_sin(:,i);
-    U = K_lqr*(Xref-X)+ U0;
+%     Xref(1,1) = Xref_sin(:,i);
+%     U = K_lqr*(Xref-X)+ U0;
 end

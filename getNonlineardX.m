@@ -51,7 +51,7 @@ Dd = [0        0       0       0       0       0;
       0        0       0       1/Ixx   0       0;
       0        0       0       0         1/Iyy   0;
       0        0       0       0       0       1/Izz];
-dX = fxu + Dd*wgn(size(Dd,2),1,10);
-% dX = fxu;
+% dX = fxu + Dd*wgn(size(Dd,2),1,10);
+dX = fxu;
 
 
