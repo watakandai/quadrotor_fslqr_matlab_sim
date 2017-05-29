@@ -18,7 +18,7 @@ for i=1:(length(T))     % t=0 ~ t=t_end
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
     % ------------------------- For Hinfinity ---------------------------%
     % Difference between Ref and States
-    E = -X-Dist;
+    E = Xref-X;
     % Runge kutta for Controller
     dXctr1 = getControllerdX(Xctr, E, Actr,Bctr)*dt;
     dXctr2 = getControllerdX(Xctr+dXctr1/2, E, Actr,Bctr)*dt;

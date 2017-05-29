@@ -58,6 +58,7 @@ C = eye(12);
 D = zeros(size(C,1), size(B,2));
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
+%{
 %   fwx,    fwy,    fwz,    twx,    twy,    twz
 Dd = [0        0       0       0       0       0;
       0        0       0       0       0       0;
@@ -75,6 +76,7 @@ Dd = [0        0       0       0       0       0;
 % model
 % https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
 % a lot to think of
+%}
 
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
@@ -98,6 +100,7 @@ pzmap(Pss);
 
 % Transfer Function of P (from 4inputs to 12 outputs)
 tf(Pss)
+spoles(P)
 %{
 tf1=tf([1],[1 1]);
 tf2=tf([1],[1 2 1]);

@@ -30,18 +30,29 @@ spoles(Ws)
 [K, CL, gamma] = hinfsyn(G,12,4,1,10,0.01,2);
 %}
 %{%
-systemnames = 'P Ws Wt Wn';
-inputvar = '[noise{4}; dist{12}; control{4}]';
-outputvar = '[Ws; Wt; -P-Wn]';
-input_to_P = '[control+dist]';
-input_to_Ws = '[Wn(1:3)+P(1:3)]';
+systemnames = 'P Ws Wt Wn Wd';
+inputvar = '[dist{12}; noise{4}; control{4}]';
+outputvar = '[Ws; Wt; -P-Wd]';
+input_to_P = '[control+Wn]';
+input_to_Ws = '[P(1:3)+Wd(1:3)]';
 input_to_Wt = '[control]';
 input_to_Wn = '[noise]';
+input_to_Wd = '[dist]';
 sysoutname = 'G';
 cleanupsysic='yes';
 sysic;
+hin_ic = sel(G, 1:19, 13:20);
 [K,CL,GAM]=hinfsyn(G,12,4,1,10,0.01,2);
 [Actr,Bctr,Cctr,Dctr]=unpck(K);
+
+figure
+omega = logspace(-2,6,100);
+CL_g = frsp(CL,omega);
+vplot('liv,lm',vsvd(CL_g))
+title('Singular Value Plot of CL')
+xlabel('Frequency (rad/sec)')
+ylabel('Magnitude')
+legend('x','y','z','{\it f}','{\tau_x}','{\tau_y}','{\tau_z}');
 %}
 %{
 systemnames = 'P Ws Wt';
@@ -57,15 +68,37 @@ sysic;
 [Actr,Bctr,Cctr,Dctr]=unpck(K);
 %}
 
-systemnames = ' P ';
-inputvar = '[ref{12}; dist{4}; noise{12}; control{4} ]';
-outputvar = '[ P(1:3)+noise(1:3); ref-P-noise ]';
-input_to_P = '[ control+dist ]';
+systemnames = ' P Wn ';
+inputvar = '[ref{12}; noise{4}; dist{12}; control{4} ]';
+outputvar = '[ P(1:3); ref-P-dist ]';
+input_to_P = '[ control+Wn ]';
+input_to_Wn = '[ noise ]';
 sysoutname = 'sim_ic';
 cleanupsysic = 'yes';
 sysic
 
-clp=starp(sim_ic, K);
+figure
+clp=starp(sim_ic, K, 12, 4);
+
+timdata=0;
+tf=10;
+ti=0.01;
+stepdata=1;
+ref=step_tr(timedata,stepdata,ti,tf);
+Ref=abv(ref,ref,ref);
+Noise=abv(0, 0, 0, 0);
+dist=abv(0,0,0,0,0,0);
+Dist=abv(dist,dist);
+y=trsp(clp, abv(Ref,Noise,Dist),tf,ti);
+
+figure
+vplot(sel(y,),);
+grid
+title('Closed-loop transient response')
+xlabel('Time (secs)')
+ylabel('y[m]')
+legend('y')
+
 omega=logspace(-4,2,100);
 Wp_g=frsp(Ws,omega);
 Wpi_g=minv(Wp_g);
@@ -74,7 +107,8 @@ sen_g=frsp(sen_loop,omega);
 vplot('liv,lm', Wpi_g, 'm--', vnorm(sen_g), 'y-')
 title('CLOSED-LOOP Sensitivity Function')
 xlabel('Frequency [rad/s]'); ylabel('Magnitude');
-legend('Inverse Weighting function','Nominal Sensitivity function');
+legend('Inverse Weighting function', ...
+        'Nominal Sensitivity function')
 %%
 spoles(K)
 omega=logspace(-2,6,100);

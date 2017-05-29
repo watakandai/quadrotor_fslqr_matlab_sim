@@ -1,2 +1,2 @@
-function dX=getControllerdX(X, U, Actr,Bctr)
-dX = Actr*X+Bctr*U;
+function dX=getControllerdX(X, U, A,B)
+dX = A*X+B*U;
