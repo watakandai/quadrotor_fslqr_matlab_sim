@@ -25,7 +25,7 @@ A = [0   0   0   1   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0];
  %}
-ep=10^(-6);
+ep=10^(-9);
 %    x,  y,  z,  u,     v,      w,      phi,    th,     psi,    p,      q,      r;
 A = [0   0   0   1      -ep      ep      0       ep      -ep     0       0       0;
      0   0   0   ep     1       -ep     -ep     0       ep      0       0       0;
@@ -39,6 +39,19 @@ A = [0   0   0   1      -ep      ep      0       ep      -ep     0       0      
      0   0   0   0      0       0       0       0       0       0       ep      ep;
      0   0   0   0      0       0       0       0       0       ep      0       ep;
      0   0   0   0      0       0       0       0       0       ep      ep      0];
+ 
+ A = [-ep   0   0   1   0   0   0   0   0   0   0   0;
+     0   -ep   0   0   1   0   0   0   0   0   0   0;
+     0   0   -ep   0   0   1   0   0   0   0   0   0;
+     0   0   0   -ep   0   0   0   -g  0   0   0   0;
+     0   0   0   0   -ep   0   g   0   0   0   0   0;
+     0   0   0   0   0   -ep   0   0   0   0   0   0;
+     0   0   0   0   0   0   -ep   0   0   1   0   0;
+     0   0   0   0   0   0   0   -ep   0   0   1   0;
+     0   0   0   0   0   0   0   0   -ep   0   0   1;
+     0   0   0   0   0   0   0   0   0   -ep   0   0;
+     0   0   0   0   0   0   0   0   0   0   -ep   0;
+     0   0   0   0   0   0   0   0   0   0   0   -ep];
  
 %    f     tx      ty      tz
 B = [0     0       0       0;
@@ -81,9 +94,14 @@ Dd = [0        0       0       0       0       0;
 P = pck(A,B,C,D);
 w=logspace(0,2,100);
 % Bode Diagram of Plant P
-% figure
-% P_g = frsp(P,w);
-% vplot('bode',P_g);
+
+P_g = frsp(P,w);
+for i=1:length(A)
+   Psel_g = sel(P_g, i, 1:size(B,2));
+   figure
+   vplot('bode', Psel_g); title(sprintf('%i',i));
+   legend('u','tx','ty','tz');
+end
 
 % poles and pole diagram of Plant P
 Pss = ss(A,B,C,D);
@@ -101,6 +119,7 @@ pzmap(Pss);
 % Transfer Function of P (from 4inputs to 12 outputs)
 tf(Pss)
 spoles(P)
+
 %{
 tf1=tf([1],[1 1]);
 tf2=tf([1],[1 2 1]);

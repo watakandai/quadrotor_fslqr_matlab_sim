@@ -16,8 +16,8 @@ Pnum2=conv(Pnum1,Pnum1); Pden2=conv(Pden1,Pden1);
 Pnum3=conv(Pnum1,Pnum2); Pden3=conv(Pden1,Pden2);
 Pnum4=conv(Pnum1,Pnum3); Pden4=conv(Pden1,Pden3);
 % -------------------------------- x ------------------------------------%
-gain=0.5; f1=1; f2=3; w1=2*pi*f1;w2=2*pi*f2; gain=gain*(w2/w1);num=[1 w1]; den=[1 w2]; 
-% gain=3; w=10; ze=0.6; num=[1 0 0]; den=[1 2*ze*w w^2];
+% gain=0.5; f1=1; f2=3; w1=2*pi*f1;w2=2*pi*f2; gain=gain*(w2/w1);num=[1 w1]; den=[1 w2]; 
+gain=3; w=10; ze=0.6; num=[1 0 0]; den=[1 2*ze*w w^2];
     % BODE DIAGRAM
     sys = tf(gain*num,den)
     magt = bode(sys,W); magt = squeeze(magt); magt = 20*log10(magt);
@@ -70,8 +70,8 @@ Wt=daug(msysx,msysx,msysx,msysx);
 %                           Ws (MOST IMPORTANT)                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % -------------------------------- x ------------------------------------%
-gain=1; f1=0.1; f2=3;  w1=2*pi*f1; w2=2*pi*f2; num=[1 w2]; den=[1 w1];
-% gain=2; ze=0.7; w=1; num=[0 0 w^2]; den=[1 2*ze*w w^2];
+% gain=10; f1=0.1; f2=3;  w1=2*pi*f1; w2=2*pi*f2; num=[1 w2]; den=[1 w1];
+gain=2; ze=0.7; w=1; num=[0 0 w^2]; den=[1 2*ze*w w^2];
     % BODE DIAGRAM
     sys = tf(gain*num,den)
     magX = bode(sys,W); magX = squeeze(magX); magX = 20*log10(magX); wsX = nd2sys(num,den,gain);
