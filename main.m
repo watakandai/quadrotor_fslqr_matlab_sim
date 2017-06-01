@@ -58,14 +58,14 @@ U_data = zeros(length(U), length(T_data));     % input u to the motor
 % setWeights
 setWeightsNew
 % Calculate Control Gain K
-% getLQRGain;
-getHinfGain
+getLQRGain;
+% getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
 % rungekutta simulation
-Xctr_data = zeros(size(Actr,1),length(T_data));
-Xctr = zeros(size(Actr,1),1);
+% Xctr_data = zeros(size(Actr,1),length(T_data));
+% Xctr = zeros(size(Actr,1),1);
 
 % motor first order lag, https://fenix.tecnico.ulisboa.pt/downloadFile/395139421061/EXTENDED%20ABSTRACT.pdf
 % Tf = 0.1;

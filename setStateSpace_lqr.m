@@ -32,14 +32,14 @@ A = [0   0   0   1      -ep      ep      0       ep      -ep     0       0      
      0   0   0   -ep    ep      1       ep      -ep     0       0       0       0;
      0   0   0   0      ep      -ep     0       -g      0       0       -ep     ep;
      0   0   0   -ep    0       ep      g       0       0       ep      0       -ep;
-     0   0   0   ep     -ep     0       0       0       0       -ep     ep      0;
+     0   0   0   ep     -ep     0        0       0       0       -ep     ep      0;
      0   0   0   0      0       0       0       ep      0       1       0       ep;
      0   0   0   0      0       0       -ep     0       0       0       1       -ep;
      0   0   0   0      0       0       ep      0       0       0       ep      1;
      0   0   0   0      0       0       0       0       0       0       ep      ep;
      0   0   0   0      0       0       0       0       0       ep      0       ep;
      0   0   0   0      0       0       0       0       0       ep      ep      0];
- 
+%{
  A = [-ep   0   0   1   0   0   0   0   0   0   0   0;
      0   -ep   0   0   1   0   0   0   0   0   0   0;
      0   0   -ep   0   0   1   0   0   0   0   0   0;
@@ -52,7 +52,8 @@ A = [0   0   0   1      -ep      ep      0       ep      -ep     0       0      
      0   0   0   0   0   0   0   0   0   -ep   0   0;
      0   0   0   0   0   0   0   0   0   0   -ep   0;
      0   0   0   0   0   0   0   0   0   0   0   -ep];
- 
+ %}
+
 %    f     tx      ty      tz
 B = [0     0       0       0;
      0     0       0       0;
@@ -96,12 +97,14 @@ w=logspace(0,2,100);
 % Bode Diagram of Plant P
 
 P_g = frsp(P,w);
+%{
 for i=1:length(A)
    Psel_g = sel(P_g, i, 1:size(B,2));
    figure
    vplot('bode', Psel_g); title(sprintf('%i',i));
    legend('u','tx','ty','tz');
 end
+%}
 
 % poles and pole diagram of Plant P
 Pss = ss(A,B,C,D);
