@@ -19,7 +19,7 @@ spoles(G)
 spoles(Ws)
 [K, CL, gamma] = hinfsyn(G,12,4,1,10,0.01,2);
 %}
-%{
+%{%
 systemnames = 'P Ws Wt Wn Wd';
 inputvar = '[dist{12}; noise{4}; control{4}]';
 outputvar = '[Ws; Wt; -P-Wd]';
@@ -38,6 +38,7 @@ ep = 0.001;
 [EG] = expandG(hin_ic, 12, 4, ep);
 %}
 
+%{
 systemnames = 'P Ws Wt Wn';
 inputvar = '[noise{12}; control{4}]';
 outputvar = '[Ws; Wt; -P-Wn]';
@@ -48,13 +49,14 @@ input_to_Wn = '[noise]';
 sysoutname = 'G';
 cleanupsysic='yes';
 sysic;
-
 [Ga, Gb1, Gb2, Gc1, Gc2, Gd11, Gd12, Gd21, Gd22] = g2ss(G, 12, 4);
 ep = 0.001;
 [EG] = expandG(G, 12, 4, ep);
+%}
 
 [K,CL,GAM]=hinfsyn(EG,12,4,1,10,0.01,2);
 [Actr,Bctr,Cctr,Dctr]=unpck(K);
+CL = sel(CL, [1:7], [1:16]);
 
 figure
 omega = logspace(-2,6,100);
@@ -128,15 +130,17 @@ end
 
 %% Frequency Response of K controller & Poles
 figure
-K_g = frsp(K, w);
-vplot('liv,lm', K_g); title('Frequency response of controller')
+W=logspace(-1,2,100);
+K_g = frsp(K, W);
+vplot('liv,lm', vsvd(K_g)); title('Frequency response of controller')
 xlabel('Frequency [rad/s]'), ylabel('Gain')
+legend('{\it f}','{\tau_x}','{\tau_y}','{\tau_z}');
 
 spoles(K)
 %% Build Closed Loop with STARP
 systemnames = ' P Wn ';
-inputvar = '[ref{12}; noise{12}; control{4} ]';
-outputvar = '[ P(1:3); ref-P-noise ]';
+inputvar = '[ref{12}; dist{12}; noise{4}; control{4} ]';
+outputvar = '[ P(1:3); ref-P-dist ]';
 input_to_P = '[ control+Wn ]';
 input_to_Wn = '[ noise ]';
 sysoutname = 'sim_ic';
@@ -178,7 +182,7 @@ dist = step_tr(timedata,stepdata,ti,tf);
 Dist = abv(dist,dist,dist);
 dist0 = abv(0,0,0);
 Dist=abv(dist0, Dist, dist0, Dist);
-y=trsp(clp, abv(Ref,Noise,Dist),tf,ti);
+y=trsp(clp, abv(Ref,Dist,Noise),tf,ti);
 figure
 vplot(sel(y,1,1), sel(y,2,1), sel(y,3,1));
 grid

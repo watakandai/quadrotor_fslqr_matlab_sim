@@ -29,5 +29,5 @@ for i=1:(length(T))     % t=0 ~ t=t_end
 %     % Umotor = alpha*U + (1-alpha)*Umotor;
     % ---------------------------- For LQR ------------------------------%
 %     Xref(1,1) = Xref_sin(:,i);
-    U = K_lqr*(Xref-X)+ U0;
+    U = K_lqr*(Xref-X);
 end

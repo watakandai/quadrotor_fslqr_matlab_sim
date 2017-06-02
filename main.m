@@ -58,8 +58,8 @@ U_data = zeros(length(U), length(T_data));     % input u to the motor
 % setWeights
 setWeightsNew
 % Calculate Control Gain K
-getLQRGain;
-% getHinfGain
+% getLQRGain;
+getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%

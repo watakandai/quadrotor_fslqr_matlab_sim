@@ -30,7 +30,7 @@ fxu=[w*(phi*psi+th)-v*(psi-phi*th)+u;
      w-u*th+v*phi;
      r*v-q*w-g*th;
      p*w-r*u+g*phi;
-     q*u-p*v+g-f/m;
+     q*u-p*v-f/m;
      p+r*th+q*phi*th;
      q-r*phi;
      r+q*phi;

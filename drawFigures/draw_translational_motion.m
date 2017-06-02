@@ -18,9 +18,10 @@ end
 %%  3D
 figure
 set(gcf, 'Name', '3D Position');
-for n=1:length(T)
-    plot3(X_data(1,1:n), X_data(2,1:n), X_data(3,1:n)); grid on;
+for t=1:length(T)-1
+    plot3(X_data(1,1:t), X_data(2,1:t), X_data(3,1:t)); grid on;
     xlim([min(X_data(1,:)) max(X_data(1,:))]); ylim([min(X_data(2,:)) max(X_data(2,:))]); zlim([min(X_data(3,:)) max(X_data(3,:))]);
     xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
+    title(sprintf('%0.3f/%i [s]',t*dt,t_end));
     drawnow;
 end

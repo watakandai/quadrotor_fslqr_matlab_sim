@@ -56,6 +56,7 @@ ep = 0.001;
 
 [K,CL,GAM]=hinfsyn(EG,12,4,1,10,0.01,2);
 [Actr,Bctr,Cctr,Dctr]=unpck(K);
+CL = sel(CL, [1:7], [1:16]);
 
 figure
 omega = logspace(-2,6,100);
@@ -129,15 +130,17 @@ end
 
 %% Frequency Response of K controller & Poles
 figure
-K_g = frsp(K, w);
-vplot('liv,lm', K_g); title('Frequency response of controller')
+W=logspace(-1,2,100);
+K_g = frsp(K, W);
+vplot('liv,lm', vsvd(K_g)); title('Frequency response of controller')
 xlabel('Frequency [rad/s]'), ylabel('Gain')
+legend('{\it f}','{\tau_x}','{\tau_y}','{\tau_z}');
 
 spoles(K)
 %% Build Closed Loop with STARP
 systemnames = ' P Wn ';
-inputvar = '[ref{12}; noise{4}; dist{12}; control{4} ]';
-outputvar = '[ P(1:3); ref-P-dist ]';
+inputvar = '[ref{12}; dist{12}; noise{4}; control{4} ]';
+outputvar = '[ P(1:3)+dist(1:3); control; ref-P-dist ]';
 input_to_P = '[ control+Wn ]';
 input_to_Wn = '[ noise ]';
 sysoutname = 'sim_ic';
@@ -158,7 +161,7 @@ Ref=abv(ref, ref, ref, ref0, ref0, ref0);
 Noise=abv(0, 0, 0, 0);
 dist=abv(0,0,0,0,0,0);
 Dist=abv(dist,dist);
-y=trsp(clp, abv(Ref,Noise,Dist),tf,ti);
+y=trsp(clp, abv(Ref,Dist,Noise),tf,ti);
 figure
 vplot(sel(y,1,1), sel(y,2,1), sel(y,3,1));
 grid
@@ -179,7 +182,7 @@ dist = step_tr(timedata,stepdata,ti,tf);
 Dist = abv(dist,dist,dist);
 dist0 = abv(0,0,0);
 Dist=abv(dist0, Dist, dist0, Dist);
-y=trsp(clp, abv(Ref,Noise,Dist),tf,ti);
+y=trsp(clp, abv(Ref,Dist,Noise),tf,ti);
 figure
 vplot(sel(y,1,1), sel(y,2,1), sel(y,3,1));
 grid
@@ -199,7 +202,7 @@ noise=step_tr(timedata,stepdata,ti,tf);
 Noise=abv(noise,noise,noise,noise);
 dist=abv(0,0,0,0,0,0);
 Dist=abv(dist,dist);
-y=trsp(clp, abv(Ref,Noise,Dist),tf,ti);
+y=trsp(clp, abv(Ref,Dist,Noise),tf,ti);
 figure
 vplot(sel(y,1,1), sel(y,2,1), sel(y,3,1));
 grid
@@ -214,7 +217,7 @@ Wp_g=frsp(Ws,omega);
 Wpi_g=minv(Wp_g);
 sen_loop=sel(clp,1:3,13:28);
 sen_g=frsp(sen_loop,omega);
-vplot('liv,lm', Wpi_g, 'm--', sen_g, 'y-');
+vplot('liv,lm', Wpi_g, 'm--', vnorm(sen_g), 'y-');
 legend('Inverse Weighting function', 'Nominal Sensitivity function')
 title('CLOSED-LOOP Sensitivity Function')
 xlabel('Frequency [rad/s]'); ylabel('Magnitude');
