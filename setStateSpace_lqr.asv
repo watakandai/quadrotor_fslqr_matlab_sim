@@ -73,18 +73,19 @@ C = eye(12);
 % D = 0.001*ones(size(C,1), size(B,2));
 D = zeros(size(C,1), size(B,2));
 
-gain=1; f1=0.01; f2=0.04;  w1=2*pi*f1; w2=2*pi*f2; num=[1 w2]; den=[1 w1]; 
+gain=1; f1=0.01; f2=0.04;  w1=2*pi*f1; w2=2*pi*f2; 
+    num=[1 w2]; den=[1 w1]; sys= tf(gain*num,den); 
+    magX = bode(sys,W); magX = squeeze(magX); magX = 20*log10(magX); 
     wsX = nd2sys(num,den,gain);
     xq=daug(wsX, wsX, wsX);
     xq0=daug(1,1,1);
     Xq=daug(xq,xq0,xq0,xq0);
     [Aq,Bq,Cq,Dq]=unpck(Xq);
 
-AG=[A       zeros(length(A),length(Aq));
+AG=[A       zeros(length(A),lengthAq);
     Bq*C    Aq];
-BG=[B; zeros(length(Aq), size(B,2))];
-CG=[Dq*C    Cq];
-[K_lqr, Pg, e] = lqr(AG, BG, eye(length(AG)), eye(size(BG,2)));
+BG=[B; zeros(length(Aq), size(B,2)];
+CG=[D
 
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
