@@ -9,6 +9,7 @@
 %               d = disturbance;    % [fwx,fwy,fwz,twx,twy,tw]
 %               y = output;         % Leave it for now. Depends on sensors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+W=logspace(-2,3,100);
 %% States
 %    x,  y,  z,  u,  v,  w, phi, th, psi, p, q,  r;
 %{%
@@ -73,19 +74,59 @@ C = eye(12);
 % D = 0.001*ones(size(C,1), size(B,2));
 D = zeros(size(C,1), size(B,2));
 
-gain=1; f1=0.01; f2=0.04;  w1=2*pi*f1; w2=2*pi*f2; num=[1 w2]; den=[1 w1]; 
-    wsX = nd2sys(num,den,gain);
-    xq=daug(wsX, wsX, wsX);
+gain=10; f=0.1; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2]; 
+    q = nd2sys(num,den,gain);
+    q_g = frsp(q, W); 
+    xq=daug(q,q,q);
     xq0=daug(1,1,1);
     Xq=daug(xq,xq0,xq0,xq0);
     [Aq,Bq,Cq,Dq]=unpck(Xq);
+    
+gain=30; f=0.1; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2]; 
+    r = nd2sys(num, den, gain);
+    Xr=daug(r,r,r,r);
+    [Ar,Br,Cr,Dr]=unpck(Xr);
+    r_g = frsp(r, W); r_g=minv(r_g); figure; vplot('liv,lm', q_g, r_g);
+    xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itW_q}', '{\itW_r}');
+    
+% AG=[Aq                              Bq*C                            zeros(length(Aq),length(Ar));
+%     zeros(length(A),length(Aq))     A                               B*Cr
+%     zeros(length(Ar),length(Aq))    zeros(length(Ar),length(A))     Ar];
+% BG=[zeros(length(Aq), size(Br,2));
+%     B*Dr;
+%     Br];
+% AG=[A                               zeros(length(A),length(Aq))     zeros(length(A),length(Ar));
+%     Bq                              Aq                              zeros(length(Aq),length(Ar));
+%     zeros(length(Ar),length(A))     zeros(length(Ar),length(Aq))    Ar];
+% BG=[B;
+%     zeros(size(Bq,1), size(B,2));
+%     Br];
+% CG=[C zeros(size(C,1),length(Aq)) zeros(size(C,1),length(Ar))];
+% DG=zeros(size(CG,1),size(BG,2));
+% QG=[[Dq';Cq']*[Dq Cq] zeros(length(A)+length(Aq),length(Ar)); zeros(length(Ar), length(A)+length(Aq)) Cr'*Cr];
+% RG=Dr'*Dr;
+Aag=[A                               zeros(length(A),length(Aq))     B*Cr;
+    Bq                              Aq                              zeros(length(Aq),length(Ar));
+    zeros(length(Ar),length(A))     zeros(length(Ar),length(Aq))    Ar];
+Bag=[B*Dr;
+    zeros(length(Aq), size(Br,2));
+    Br];
+Cag=[Dq Cq zeros(size(Cq,1), length(Ar))]; Dag=zeros(size(Cag,1), size(Bag,2));
+[K_lqr, Pg, e] = lqr(Aag, Bag, eye(size(Aag)), eye(size(Bag,2)));
+Kx=K_lqr(:,1:length(A));     Kq=K_lqr(:,length(A)+1:length(A)+length(Aq));     Kr=K_lqr(:,length(A)+length(Aq)+1:length(A)+length(Aq)+length(Ar));
 
-AG=[A       zeros(length(A),length(Aq));
-    Bq*C    Aq];
-BG=[B; zeros(length(Aq), size(B,2))];
-CG=[Dq*C    Cq];
-[K_lqr, Pg, e] = lqr(AG, BG, eye(length(AG)), eye(size(BG,2)));
+Ak=[ Aq         zeros(length(Aq), size(Ar-Br*Kr,2));
+     -Br*Kq     Ar-Br*Kr];
+Bk=[ Bq; -Br*Kx];
+Ck=[ Dr*Kq  -(Cr-Dr*Kr)];
+Dk= -Dr*Kx;
 
+lqg=pck(Aag-Bag*K_lqr,Bag,Cag,Dag);
+LQG=sel(lqg, 1:12, 1:4);
+LQG_g=frsp(LQG,W);
+figure
+vplot('liv,lm',vsvd(LQG_g));
+legend('{\it f}','{\tau_x}','{\tau_y}','{\tau_z}');
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %{
@@ -109,10 +150,9 @@ Dd = [0        0       0       0       0       0;
 %}
 
 P = pck(A,B,C,D);
-w=logspace(0,2,100);
 % Bode Diagram of Plant P
 
-P_g = frsp(P,w);
+P_g = frsp(P,W);
 %{
 for i=1:length(A)
    Psel_g = sel(P_g, i, 1:size(B,2));
@@ -132,12 +172,12 @@ for i=1:size(B,2)
     end
 end
 %}
-figure
-pzmap(Pss);
+% figure
+% pzmap(Pss);
 
 % Transfer Function of P (from 4inputs to 12 outputs)
-tf(Pss)
-spoles(P)
+% tf(Pss)
+% spoles(P)
 
 %{
 tf1=tf([1],[1 1]);
@@ -182,4 +222,3 @@ else
    end
 end
 Observability = rank(obs)
-

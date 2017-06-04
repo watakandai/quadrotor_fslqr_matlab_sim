@@ -1,13 +1,18 @@
+% Xctr_data = zeros(size(Actr,1),length(T_data));
+% Xctr = zeros(size(Actr,1),1);
+Xk_data = zeros(size(Ak,1),length(T_data));
+Xk = zeros(size(Ak,1),1);
+Dist = [0.01 0.01 0.01 0 0 0 0 0 0 0 0 0]';
 
-for i=1:(length(T))     % t=0 ~ t=t_end
-    % Save Data
-    X_data(:,i)  = X;                       % state x
-    Xq_data(:,i) = Xq;
-%     Xctr_data(:,i) = Xctr;                  % state of controller
-    U_data(:,i)  = U;                       % input u
-%     Umotor_data(:,i) = Umotor;
-    T_data(:,i)  = i*dt;                    % time  t
-    
+for t=1:(length(T))     % t=0 ~ t=t_end
+% Save Data
+    T_data(:,t)  = t*dt;                        % time  t
+    X_data(:,t)  = X;                         % state x
+    Xk_data(:,t) = Xk;
+    U_data(:,t) = U;                            % input u
+%     Xctr_data(:,t) = Xctr;                  % state of controller
+%     Umotor_data(:,t) = Umotor;
+
     % ------------------------- For Plant ---------------------------%
     % NonlinearDynamics (Equation of Motion)
     % change U to Umotor. U is not considering first order lag
@@ -15,8 +20,16 @@ for i=1:(length(T))     % t=0 ~ t=t_end
     dX2 = getNonlineardX_body(X+dX1/2, U)*dt;
     dX3 = getNonlineardX_body(X+dX2/2, U)*dt;
     dX4 = getNonlineardX_body(X+dX3, U)*dt;  
-    
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
+%     U = K_lqr*(Xref-X);
+%     U = -K_lqr*X;
+    % ------------------------ For Expanded LQR ---------------------------%
+    dXk1 = getdX(Xk, X, Ak, Bk)*dt;
+    dXk2 = getdX(Xk+dXk1/2, X, Ak, Bk)*dt;
+    dXk3 = getdX(Xk+dXk2/2, X, Ak, Bk)*dt;
+    dXk4 = getdX(Xk+dXk3, X, Ak, Bk)*dt;
+    Xk = Xk+(dXk1+2*dXk2+2*dXk3+dXk4)/6;
+    U = -Ck*Xk + Dk*X;
     % ------------------------- For Hinfinity ---------------------------%
 %     % Difference between Ref and States
 %     E = Xref-X;
@@ -28,18 +41,4 @@ for i=1:(length(T))     % t=0 ~ t=t_end
 %     Xctr = Xctr+(dXctr1+2*dXctr2+2*dXctr3+dXctr4)/6;
 %     U = Cctr*Xctr + Dctr*E;
 %     % Umotor = alpha*U + (1-alpha)*Umotor;
-    % ---------------------------- For LQR ------------------------------%
-%     Xref(1,1) = Xref_sin(:,i);
-%     U = K_lqr*(Xref-X);
-    
-    
-    % ------------------------ For Expanded LQR ---------------------------%
-    dXq1 = getdX(Xq, X, Aq, Bq)*dt;
-    dXq2 = getdX(Xq+dXq1/2, X, Aq, Bq)*dt;
-    dXq3 = getdX(Xq+dXq2/2, X, Aq, Bq)*dt;
-    dXq4 = getdX(Xq+dXq3, X, Aq, Bq)*dt;
-    Xq = Xq+(dXq1+2*dXq2+2*dXq3+dXq4)/6;
-
-    U = K_lqr(:,1:12)*(Xref-X) - K_lqr(:,13:15)*Xq;
-    
 end

@@ -32,20 +32,18 @@ setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 5;
+t_end = 10;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
-X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
+X0 = [1 1 1 0 0 0 0 0 0 0 0 0]';
 U0 = [m*g 0 0 0]';
+U0 = [0 0 0 0]';
 X = X0;
 U = U0;
-Umotor = [m*g 0 0 0]';
+% Umotor = [m*g 0 0 0]';
 % Reference States
 Xref = [1 1 1 0 0 0 0 0 0 0 0 0]';
-amp = 0.3;
-f = 1;
-Xref_sin = amp * sin(2*pi*f*T);
 % boxes to store data
 T_data = T;                                    % time t
 X_data = zeros(length(X), length(T_data));     % state x
@@ -64,18 +62,8 @@ setWeightsNew
 % checkSingularValue 
 %%
 % rungekutta simulation
-% Xctr_data = zeros(size(Actr,1),length(T_data));
-% Xctr = zeros(size(Actr,1),1);
-Xq_data = zeros(size(Aq,1),length(T_data));
-Xq = zeros(size(Aq,1),1);
-
-% motor first order lag, https://fenix.tecnico.ulisboa.pt/downloadFile/395139421061/EXTENDED%20ABSTRACT.pdf
-% Tf = 0.1;
-% alpha=dt/(Tf+dt);
-Dist = [0 0 0 0.05 0.05 0.05 0 0 0 0 0 0]';
 rungekutta
-
-
+    
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
@@ -107,8 +95,11 @@ end
 %{%
 %% Define Systems
 systems = tf(ss(A, B, C, D));
-systems_lqr = tf(ss(A-B*K_lqr, B, C, D));
-systems_hinf = tf(ss(A-B*K_lqr, B, C, D));
+systems_lqr = tf(ss(AG-BG*K_lqr, BG, CG, DG));
+systems_hinf = tf(ss(AG-BG*K_lqr, BG, CG, DG));
+
+% systems_lqr = tf(ss(A-B*K_lqr, B, C, D));
+% systems_hinf = tf(ss(A-B*K_lqr, B, C, D));
 %% Bode
 draw_bode_diagram
 %% step & Impulse

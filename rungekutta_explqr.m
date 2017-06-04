@@ -15,6 +15,13 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     U_data(:,t) = U;                            % input u
 %     Xctr_data(:,t) = Xctr;                  % state of controller
 %     Umotor_data(:,t) = Umotor;
+    
+    % ------------------------ For Expanded LQR ---------------------------%
+    dXr1 = getdX(Xr, U, Ar, Br)*dt;
+    dXr2 = getdX(Xr+dXr1/2, U, Ar, Br)*dt;
+    dXr3 = getdX(Xr+dXr2/2, U, Ar, Br)*dt;
+    dXr4 = getdX(Xr+dXr3, U, Ar, Br)*dt;
+    Xr = Xr+(dXr1+2*dXr2+2*dXr3+dXr4)/6;
 
     % ------------------------- For Plant ---------------------------%
     % NonlinearDynamics (Equation of Motion)
@@ -24,15 +31,20 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     dX3 = getNonlineardX_body(X+dX2/2, U)*dt;
     dX4 = getNonlineardX_body(X+dX3, U)*dt;  
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
+    if t>100 && t<500
+        X = X+Dist;
+    end
 %     U = K_lqr*(Xref-X);
 %     U = -K_lqr*X;
+
     % ------------------------ For Expanded LQR ---------------------------%
-    dXk1 = getdX(Xr, X, Ak, Bk)*dt;
-    dXk2 = getdX(Xr+dXk1/2, X, Ak, Bk)*dt;
-    dXk3 = getdX(Xr+dXk2/2, X, Ak, Bk)*dt;
-    dXk4 = getdX(Xr+dXk3, X, Ak, Bk)*dt;
-    Xk = Xk+(dXk1+2*dXk2+2*dXk3+dXk4)/6;
-    U = -Ck*Xk + Dk*X;
+    dXq1 = getdX(Xq, X, Aq, Bq)*dt;
+    dXq2 = getdX(Xq+dXq1/2, X, Aq, Bq)*dt;
+    dXq3 = getdX(Xq+dXq2/2, X, Aq, Bq)*dt;
+    dXq4 = getdX(Xq+dXq3, X, Aq, Bq)*dt;
+    Xq = Xq+(dXq1+2*dXq2+2*dXq3+dXq4)/6;
+
+    U = - K_lqr(:,1:length(A))*X - K_lqr(:,length(A)+1:length(A)+length(Aq))*Xq - K_lqr(:,length(A)+length(Aq)+1:length(A)+length(Aq)+length(Ar))*Xr;
     % ------------------------- For Hinfinity ---------------------------%
 %     % Difference between Ref and States
 %     E = Xref-X;
