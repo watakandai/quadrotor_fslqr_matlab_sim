@@ -74,7 +74,9 @@ C = eye(12);
 % D = 0.001*ones(size(C,1), size(B,2));
 D = zeros(size(C,1), size(B,2));
 
-gain=10; f=0.1; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2]; 
+close all
+
+gain=1; f=0.5; ze=0.7; w=2*pi*f; num=[1 2*ze*w w^2]; den=[1 0 0]; 
     q = nd2sys(num,den,gain);
     q_g = frsp(q, W); 
     xq=daug(q,q,q);
@@ -82,12 +84,12 @@ gain=10; f=0.1; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2];
     Xq=daug(xq,xq0,xq0,xq0);
     [Aq,Bq,Cq,Dq]=unpck(Xq);
     
-gain=30; f=0.1; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2]; 
+gain=30; f=1; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2]; 
     r = nd2sys(num, den, gain);
     Xr=daug(r,r,r,r);
     [Ar,Br,Cr,Dr]=unpck(Xr);
     r_g = frsp(r, W); r_g=minv(r_g); figure; vplot('liv,lm', q_g, r_g);
-    xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itW_q}', '{\itW_r}');
+    title('Frequency Weight'); xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itW_q}', '{\itW_r}');
     
 % AG=[Aq                              Bq*C                            zeros(length(Aq),length(Ar));
 %     zeros(length(A),length(Aq))     A                               B*Cr
@@ -118,15 +120,40 @@ Kx=K_lqr(:,1:length(A));     Kq=K_lqr(:,length(A)+1:length(A)+length(Aq));     K
 Ak=[ Aq         zeros(length(Aq), size(Ar-Br*Kr,2));
      -Br*Kq     Ar-Br*Kr];
 Bk=[ Bq; -Br*Kx];
-Ck=[ Dr*Kq  -(Cr-Dr*Kr)];
+Ck=[ -Dr*Kq  Cr-Dr*Kr];
 Dk= -Dr*Kx;
-
-lqg=pck(Aag-Bag*K_lqr,Bag,Cag,Dag);
-LQG=sel(lqg, 1:12, 1:4);
-LQG_g=frsp(LQG,W);
+Gk = pck(Ak, Bk, Ck, Dk);
+Gk_g=frsp(Gk,W);
 figure
-vplot('liv,lm',vsvd(LQG_g));
-legend('{\it f}','{\tau_x}','{\tau_y}','{\tau_z}');
+vplot('liv,lm',vsvd(Gk_g)); 
+legend('{\it f}','{\tau_x}','{\tau_y}','{\tau_z}'); grid on;
+title('Controller');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
+
+P = pck(A,B,C,D);
+Wd = daug(daug(0, 0, 0, 0.1, 0.1, 0.1), daug(0, 0, 0, 0.1, 0.1, 0.1));
+
+systemnames = ' P Wd ';
+inputvar = '[ dist{12}; control{4} ]';
+outputvar = '[ P; -P-Wd ]';
+input_to_Wd = '[ dist ]';
+input_to_P = '[ control ]';
+sysoutname = 'sim_ic';
+cleanupsysic = 'yes';
+sysic
+CL=starp(sim_ic, Gk, 12, 4);
+CLtrans = sel(CL, 1:6, 1:12);
+CLtrans_g=frsp(CLtrans,W);
+figure
+vplot('liv,lm',vsvd(CLtrans_g));
+legend('{\it x}','{\it y}','{\it z}','{\it u}','{\it v}','{\it w}');
+title('Disturbance Response');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
+
+CLrotat = sel(CL, 7:12, 1:12);
+CLrotat_g=frsp(CLrotat,W);
+figure
+vplot('liv,lm',vsvd(CLrotat_g));
+legend('{\phi}','{\theta}','{\psi}','{\it p}','{\it q}','{\it r}');
+title('Disturbance Response');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %{
@@ -176,8 +203,8 @@ end
 % pzmap(Pss);
 
 % Transfer Function of P (from 4inputs to 12 outputs)
-% tf(Pss)
-% spoles(P)
+tfmat = tf(Pss)
+spoles(P)
 
 %{
 tf1=tf([1],[1 1]);

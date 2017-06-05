@@ -3,7 +3,8 @@
 Xk_data = zeros(size(Ak,1),length(T_data));
 Xk = zeros(size(Ak,1),1);
 Dist = [0.01 0.01 0.01 0 0 0 0 0 0 0 0 0]';
-
+Amp = 0.01;
+freq = 0.01;
 for t=1:(length(T))     % t=0 ~ t=t_end
 % Save Data
     T_data(:,t)  = t*dt;                        % time  t
@@ -23,13 +24,18 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
 %     U = K_lqr*(Xref-X);
 %     U = -K_lqr*X;
+
+    % Sign Disturbance 
+    x = Amp * sin(2*pi*freq*t*dt);
+    Dist=[0 0 0 x x x 0 0 0 0 0 0 ]';
+    X = X+Dist;
     % ------------------------ For Expanded LQR ---------------------------%
     dXk1 = getdX(Xk, X, Ak, Bk)*dt;
     dXk2 = getdX(Xk+dXk1/2, X, Ak, Bk)*dt;
     dXk3 = getdX(Xk+dXk2/2, X, Ak, Bk)*dt;
     dXk4 = getdX(Xk+dXk3, X, Ak, Bk)*dt;
     Xk = Xk+(dXk1+2*dXk2+2*dXk3+dXk4)/6;
-    U = -Ck*Xk + Dk*X;
+    U = Ck*Xk + Dk*X;
     % ------------------------- For Hinfinity ---------------------------%
 %     % Difference between Ref and States
 %     E = Xref-X;

@@ -36,8 +36,7 @@ t_end = 10;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
-X0 = [1 1 1 0 0 0 0 0 0 0 0 0]';
-U0 = [m*g 0 0 0]';
+X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
 U0 = [0 0 0 0]';
 X = X0;
 U = U0;
@@ -76,6 +75,7 @@ draw_rotational_motion
 draw_translational_motion
 %%
 % OpenLoop Analysis (LQR)
+%{
 openLoop = tf(Pss*K_lqr);
 figure
 for i=1:size(B,2)
@@ -84,7 +84,7 @@ for i=1:size(B,2)
         hold on
     end
 end
-
+%}
 % drawFigures
 %% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,12 +92,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % VRexcelData
 %%
-%{%
+%{
 %% Define Systems
 systems = tf(ss(A, B, C, D));
-systems_lqr = tf(ss(AG-BG*K_lqr, BG, CG, DG));
-systems_hinf = tf(ss(AG-BG*K_lqr, BG, CG, DG));
-
 % systems_lqr = tf(ss(A-B*K_lqr, B, C, D));
 % systems_hinf = tf(ss(A-B*K_lqr, B, C, D));
 %% Bode

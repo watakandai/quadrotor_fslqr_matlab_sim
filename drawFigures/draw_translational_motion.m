@@ -16,6 +16,9 @@ for i=1:numData
 end
 
 %%  3D
+vidObj = VideoWriter(sprintf('Motion_w=%i.avi', freq));
+open(vidObj)
+
 figure
 set(gcf, 'Name', '3D Position');
 for t=1:length(T)-1
@@ -24,4 +27,9 @@ for t=1:length(T)-1
     xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
     title(sprintf('%0.3f/%i [s]',t*dt,t_end));
     drawnow;
+
+    currFrame = getframe(gcf);
+    writeVideo( vidObj, currFrame );
 end
+
+close( vidObj );
