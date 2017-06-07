@@ -4,7 +4,7 @@ Xk_data = zeros(size(Ak,1),length(T_data));
 Xk = zeros(size(Ak,1),1);
 Dist = [0.01 0.01 0.01 0 0 0 0 0 0 0 0 0]';
 Amp = 0.01;
-freq = 1;
+freq = 0.5;
 for t=1:(length(T))     % t=0 ~ t=t_end
 % Save Data
     T_data(:,t)  = t*dt;                        % time  t

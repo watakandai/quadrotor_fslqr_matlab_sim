@@ -10,7 +10,7 @@ gain=1; f=0.1; ze=0.6; w=2*pi*f; numHigh=[1 0 0]; denHigh=[1 2*ze*w w^2];
     [A_high,B_high,C_high,D_high] = tf2ss(gain*numHigh,denHigh);
     mag_high=bode(tf(gain*numHigh,denHigh),W); mag_high=20*log10(mag_high);
 % Band pass --------------------------------------------------------------
-gain=1; f=0.5; ze=2; w=2*pi*f; numBand=[0 2*ze*w 0]; denBand=[1 2*ze*w w^2];
+gain=1; f=0.5; ze=0.01; w=2*pi*f; numBand=[0 2*ze*w 0]; denBand=[1 2*ze*w w^2];
 %     numBand = K_band*[1 80  w_band^2]; denBand = [1 8 w_band^2];
     [A_band,B_band,C_band,D_band]=tf2ss(gain*numBand,denBand);
     mag_band=bode(tf(gain*numBand,denBand),W); mag_band=20*log10(mag_band);

@@ -74,40 +74,31 @@ C = eye(12);
 % D = 0.001*ones(size(C,1), size(B,2));
 D = zeros(size(C,1), size(B,2));
 
-close all
-
-gain=1; f=0.5; ze=0.7; w=2*pi*f; num=[1 2*ze*w w^2]; den=[1 0 0]; 
+gain=0.01; 
+f=0.5; ze=0.9; w=2*pi*f; num=[1 2*ze*w w^2]; den=[1 0 0]; 
+f=50; ze=0.7; w=2*pi*f; numLow=[0 0 w^2]; denLow=[1 2*ze*w w^2];
+f=0.5; ze=1.3; w=2*pi*f; numBand=[0 2*ze*w 0]; denBand=[1 2*ze*w w^2];
+f1=0.001; f2=0.1;  w1=2*pi*f1; w2=2*pi*f2; numLag=[1 w2]; denLag=[1 w1]; 
+f=0.5; ze=10; w=2*pi*f; numBef=[1 2*ze*w w^2]; denBef=[1 0 w^2];
+    num=conv(num,numBef); den=conv(den,denBef);
     q = nd2sys(num,den,gain);
+%     q = nd2sys(numBef,denBef,gain);
     q_g = frsp(q, W); 
-    xq=daug(q,q,q);
-    xq0=daug(1,1,1);
-    Xq=daug(xq,xq0,xq0,xq0);
+    xq=daug(q,q,1);
+    xq1=daug(1,1,1);
+    Xq=daug(xq,xq,xq1,xq1);
     [Aq,Bq,Cq,Dq]=unpck(Xq);
     
-gain=30; f=1; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2]; 
+gain=100; f=0.5; ze=0.7; w=2*pi*f; num=[0 0 w^2]; den=[1 2*ze*w w^2]; 
+% gain=1; f=0.5; ze=1; w=2*pi*f; numBef=[1 2*ze*w w^2]; denBef=[1 0 w^2];
+%     num=conv(num,numBef); den=conv(den,denBef);
     r = nd2sys(num, den, gain);
-    Xr=daug(r,r,r,r);
+    Xr=daug(1,r,r,1);
     [Ar,Br,Cr,Dr]=unpck(Xr);
     r_g = frsp(r, W); r_g=minv(r_g); figure; vplot('liv,lm', q_g, r_g);
     title('Frequency Weight'); xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itW_q}', '{\itW_r}');
-    
-% AG=[Aq                              Bq*C                            zeros(length(Aq),length(Ar));
-%     zeros(length(A),length(Aq))     A                               B*Cr
-%     zeros(length(Ar),length(Aq))    zeros(length(Ar),length(A))     Ar];
-% BG=[zeros(length(Aq), size(Br,2));
-%     B*Dr;
-%     Br];
-% AG=[A                               zeros(length(A),length(Aq))     zeros(length(A),length(Ar));
-%     Bq                              Aq                              zeros(length(Aq),length(Ar));
-%     zeros(length(Ar),length(A))     zeros(length(Ar),length(Aq))    Ar];
-% BG=[B;
-%     zeros(size(Bq,1), size(B,2));
-%     Br];
-% CG=[C zeros(size(C,1),length(Aq)) zeros(size(C,1),length(Ar))];
-% DG=zeros(size(CG,1),size(BG,2));
-% QG=[[Dq';Cq']*[Dq Cq] zeros(length(A)+length(Aq),length(Ar)); zeros(length(Ar), length(A)+length(Aq)) Cr'*Cr];
-% RG=Dr'*Dr;
-Aag=[A                               zeros(length(A),length(Aq))     B*Cr;
+
+Aag=[A                              zeros(length(A),length(Aq))     B*Cr;
     Bq                              Aq                              zeros(length(Aq),length(Ar));
     zeros(length(Ar),length(A))     zeros(length(Ar),length(Aq))    Ar];
 Bag=[B*Dr;
@@ -130,7 +121,7 @@ legend('{\it f}','{\tau_x}','{\tau_y}','{\tau_z}'); grid on;
 title('Controller');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
 
 P = pck(A,B,C,D);
-Wd = daug(daug(0, 0, 0, 0.1, 0.1, 0.1), daug(0, 0, 0, 0.1, 0.1, 0.1));
+Wd = daug(daug(0, 0, 0, 1, 1, 1), daug(0, 0, 0, 0, 0, 0));
 
 systemnames = ' P Wd ';
 inputvar = '[ dist{12}; control{4} ]';
@@ -141,19 +132,22 @@ sysoutname = 'sim_ic';
 cleanupsysic = 'yes';
 sysic
 CL=starp(sim_ic, Gk, 12, 4);
-CLtrans = sel(CL, 1:6, 1:12);
+CLtrans = sel(CL, 1:3, 1:12);
 CLtrans_g=frsp(CLtrans,W);
 figure
 vplot('liv,lm',vsvd(CLtrans_g));
-legend('{\it x}','{\it y}','{\it z}','{\it u}','{\it v}','{\it w}');
+legend('{\it x}','{\it y}','{\it z}');
+% legend('{\it x}','{\it y}','{\it z}','{\it u}','{\it v}','{\it w}');
 title('Disturbance Response');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
 
-CLrotat = sel(CL, 7:12, 1:12);
+CLrotat = sel(CL, 7:9, 1:12);
 CLrotat_g=frsp(CLrotat,W);
 figure
 vplot('liv,lm',vsvd(CLrotat_g));
-legend('{\phi}','{\theta}','{\psi}','{\it p}','{\it q}','{\it r}');
+legend('{\phi}','{\theta}','{\psi}');
+% legend('{\phi}','{\theta}','{\psi}','{\it p}','{\it q}','{\it r}');
 title('Disturbance Response');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
+
 
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %{
