@@ -1,20 +1,28 @@
 % Xctr_data = zeros(size(Actr,1),length(T_data));
 % Xctr = zeros(size(Actr,1),1);
-Xq_data = zeros(size(Aq,1),length(T_data));
-Xq = zeros(size(Aq,1),1);
-Xr_data = zeros(size(Ar,1),length(T_data));
-Xr = zeros(size(Ar,1),1);
+Xk_data = zeros(size(Ak,1),length(T_data));
+Xk = zeros(size(Ak,1),1);
 Dist = [0.01 0.01 0.01 0 0 0 0 0 0 0 0 0]';
-
+Amp = 0.01;
+freq = 0.5;
 for t=1:(length(T))     % t=0 ~ t=t_end
 % Save Data
     T_data(:,t)  = t*dt;                        % time  t
     X_data(:,t)  = X;                         % state x
-    Xq_data(:,t) = Xq;
-    Xr_data(:,t) = Xr;
+    Xk_data(:,t) = Xk;
     U_data(:,t) = U;                            % input u
 %     Xctr_data(:,t) = Xctr;                  % state of controller
 %     Umotor_data(:,t) = Umotor;
+
+    % ------------------------- For Plant ---------------------------%
+    % x, y, z, psi
+    % Need to create XE, XE_
+    XE(1:length(X)) = X;
+    dXE1 = getdXE(XE, Axe, Bxe, Bref, U, Xref)*dt;
+    dXE2 = getdXE(XE+dXE1/2, Axe, Bxe, Bref, U, Xref)*dt;
+    dXE3 = getdXE(XE+dXE2/2, Axe, Bxe, Bref, U, Xref)*dt;
+    dXE4 = getdXE(XE+dEX3, Axe, Bxe, Bref, U, Xref)*dt;  
+    XE = XE+(dXE1+2*dXE2+2*dXE3+dXE4)/6;
 
     % ------------------------- For Plant ---------------------------%
     % NonlinearDynamics (Equation of Motion)
@@ -26,13 +34,18 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
 %     U = K_lqr*(Xref-X);
 %     U = -K_lqr*X;
+
+    % Sign Disturbance 
+    x = Amp * sin(2*pi*freq*t*dt);
+    Dist=[0 0 0 x x x 0 0 0 0 0 0 ]';
+    X = X+Dist;
     % ------------------------ For Expanded LQR ---------------------------%
-    dXk1 = getdX(Xr, X, Ak, Bk)*dt;
-    dXk2 = getdX(Xr+dXk1/2, X, Ak, Bk)*dt;
-    dXk3 = getdX(Xr+dXk2/2, X, Ak, Bk)*dt;
-    dXk4 = getdX(Xr+dXk3, X, Ak, Bk)*dt;
+    dXk1 = getdX(Xk, X, Ak, Bk)*dt;
+    dXk2 = getdX(Xk+dXk1/2, X, Ak, Bk)*dt;
+    dXk3 = getdX(Xk+dXk2/2, X, Ak, Bk)*dt;
+    dXk4 = getdX(Xk+dXk3, X, Ak, Bk)*dt;
     Xk = Xk+(dXk1+2*dXk2+2*dXk3+dXk4)/6;
-    U = -Ck*Xk + Dk*X;
+    U = Ck*Xk + Dk*X;
     % ------------------------- For Hinfinity ---------------------------%
 %     % Difference between Ref and States
 %     E = Xref-X;

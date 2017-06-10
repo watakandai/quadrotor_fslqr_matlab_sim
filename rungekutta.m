@@ -15,6 +15,17 @@ for t=1:(length(T))     % t=0 ~ t=t_end
 %     Umotor_data(:,t) = Umotor;
 
     % ------------------------- For Plant ---------------------------%
+    % x, y, z, psi
+    % Need to create XE, XE_data, Axe, Bxe, Bref
+    XE = [X; E];
+    dXE1 = getdXE(XE, A, B, Cref, U, Xref)*dt;
+    dXE2 = getdXE(XE+dXE1/2, A, B, Cref, U, Xref)*dt;
+    dXE3 = getdXE(XE+dXE2/2,  A, B, Cref, U, Xref)*dt;
+    dXE4 = getdXE(XE+dEX3, A, B, Cref, U, Xref)*dt;  
+    XE = XE+(dXE1+2*dXE2+2*dXE3+dXE4)/6;
+    E = XE(1+length(X):length(X)+length(E));
+
+    % ------------------------- For Plant ---------------------------%
     % NonlinearDynamics (Equation of Motion)
     % change U to Umotor. U is not considering first order lag
     dX1 = getNonlineardX_body(X, U)*dt;
