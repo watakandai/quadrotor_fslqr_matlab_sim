@@ -32,7 +32,7 @@ setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 10;
+t_end = 5;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
