@@ -21,12 +21,12 @@ spoles(Ws)
 %}
 %{%
 systemnames = 'P Ws Wt Wd';
-inputvar = '[dist{12}; control{4}]';
-outputvar = '[Ws; Wt; -P-Wd]';
+inputvar = '[ref{3}; dist{3}; control{4}]';
+outputvar = '[Ws; Wt; ref-P(1:3)-Wd; -P(4:12)]';
 input_to_P = '[control]';
-input_to_Ws = '[P+Wd]';
+input_to_Ws = '[ref-P(1:3)-Wd]';
 input_to_Wt = '[P]';
-input_to_Wd = '[dist]'; 
+input_to_Wd = '[dist]';
 sysoutname = 'G';
 cleanupsysic='yes';
 sysic;
@@ -138,8 +138,8 @@ legend('{\it f}','{\tau_x}','{\tau_y}','{\tau_z}');
 spoles(K)
 %% Build Closed Loop with STARP
 systemnames = ' P Wd';
-inputvar = '[ref{12}; dist{12}; control{4} ]';
-outputvar = '[ P; ref-P-Wd ]';
+inputvar = '[ref{3}; dist{3}; control{4} ]';
+outputvar = '[ P; ref-P(1:3)-Wd; -P(4:12) ]';
 input_to_P = '[ control ]';
 input_to_Wd = '[ dist ]';
 sysoutname = 'sim_ic';
@@ -151,7 +151,7 @@ clp=starp(sim_ic, K, 12, 4);
 omega=logspace(-4,2,100);
 Wp_g=frsp(Ws,omega);
 Wpi_g=minv(Wp_g);
-sen_loop=sel(clp,1:12,13:24);
+sen_loop=sel(clp,1:12,4:6);
 sen_g=frsp(sen_loop,omega);
 vplot('liv,lm', Wpi_g, 'm--', vnorm(sen_g), 'y-');
 legend('Inverse Weighting function', 'Nominal Sensitivity function')
@@ -162,15 +162,14 @@ xlabel('Frequency [rad/s]'); ylabel('Magnitude');
 %% RESPONSES (Reference, Disturbance, Noise)
 % Reference Tracking
 timedata=0;
-tf=100;
+tf=10;
 ti=0.01;
 stepdata=1;
 
 ref=step_tr(timedata,stepdata,ti,tf);
 ref0=abv(0,0,0);
-Ref=abv(ref, ref, ref, ref0, ref0, ref0);
-dist=abv(0,0,0,0,0,0);
-Dist=abv(dist,dist);
+Ref=abv(ref, ref, ref);
+Dist=abv(0,0,0);
 y=trsp(clp, abv(Ref,Dist),tf,ti);
 figure
 vplot(sel(y,1,1), sel(y,2,1), sel(y,3,1));
@@ -181,12 +180,9 @@ ylabel('position [m]')
 legend('x','y','z')
 
 % Disturbance Response
-ref0=abv(0,0,0);
-Ref=abv(ref0, ref0, ref0, ref0);
+Ref=abv(0,0,0);
 dist = step_tr(timedata,stepdata,ti,tf);
 Dist = abv(dist,dist,dist);
-dist0 = abv(0,0,0);
-Dist=abv(Dist, Dist, Dist, Dist);
 y=trsp(clp, abv(Ref,Dist),tf,ti);
 figure
 vplot(sel(y,1,1), sel(y,2,1), sel(y,3,1));

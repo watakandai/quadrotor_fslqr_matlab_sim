@@ -42,8 +42,6 @@ mag_hinf_ty2x        = 20*log10(mag_hinf_ty2x);
 mag_hinf_ty2theta    = 20*log10(mag_hinf_ty2theta);
 mag_hinf_tz2psi      = 20*log10(mag_hinf_tz2psi);
 
-
-figure('Position',[1921 97 1280 907])
 subplot(2,3,1)
 semilogx(W,mag_ty2x(1,:), W, mag_lqr_ty2x(1,:), W,mag_hinf_ty2x(1,:));            title('X / TauY');      xlabel('Frequency [Hz]'); ylabel('Gain [dB]'); legend('w/o control', 'w/ LQR control', 'w/ Hinf control'); axis([10^(-2) 10^2 -100 100]);
 grid on

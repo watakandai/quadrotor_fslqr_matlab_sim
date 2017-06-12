@@ -1,9 +1,9 @@
-% GUI Font
-set(0, 'defaultUicontrolFontName', 'Times New Roman');
-% Axes Font
-set(0, 'defaultAxesFontName','Times New Roman');
-% Title Font
-set(0, 'defaultTextFontName','Times New Roman');
+% % GUI Font
+% set(0, 'defaultUicontrolFontName', 'Times New Roman');
+% % Axes Font
+% set(0, 'defaultAxesFontName','Times New Roman');
+% % Title Font
+% set(0, 'defaultTextFontName','Times New Roman');
 % GUI Font size
 set(0, 'defaultUicontrolFontSize', 18);
 % Axes Font Size

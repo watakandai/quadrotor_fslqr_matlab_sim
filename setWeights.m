@@ -1,165 +1,38 @@
-%% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                       Wn (Phase Lag Filter)                           %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-W=logspace(-2,4,100);
-gain=1; f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magn = bode(sys,W); magn = squeeze(magn); magn = 20*log10(magn);
-    wn = nd2sys(num,den,gain);
-    % daug only allows upto 9 inputs. So divide it into 6 & 6 inputs
-    wns = daug(wn,wn,wn,wn,wn,wn);
-    Wn = daug(wns,wns);
-%{%
-figure
-set(gcf, 'Name', 'Noise Weights');
-semilogx(W,magn); grid on;
-xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('W_n');
-%}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                       Wd (Phase Lag Filter)                           %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-W=logspace(-2,4,100);
-gain=1; f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-wd = nd2sys(num,den,gain);
-wds=daug(wd,wd,wd);
-Wd=daug(wds,wds);
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                       Wt (Phase Lag Filter)                           %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-W=logspace(-1,2,100);
-gain=0.5; f1=0.2; f2=0.6; w1=2*pi*f1;w2=2*pi*f2; gain=gain*(w2/w1);
-    num=[1 w1]; den=[1 w2]; 
-    sys = tf(gain*num,den);
-    magt = bode(sys,W); magt = squeeze(magt); magt = 20*log10(magt);
-    wt = nd2sys(num,den,gain);
-    Wt = daug(wt,wt,wt,wt);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Frequency Weight                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+gain=100; 
+f=0.5; w=2*pi*f; num=w; den=[1 w];
+f=0.5; ze=1.3; w=2*pi*f; numBand=[0 2*ze*w 0]; denBand=[1 2*ze*w w^2];
+f1=0.01; f2=0.05;  w1=2*pi*f1; w2=2*pi*f2; numLag=[1 w2]; denLag=[1 w1]; 
+f=0.5; ze=0.5; w=2*pi*f; numBef=[1 2*ze*w w^2]; denBef=[1 0 w^2];
+    num=conv(num, numBef); den=conv(den,denBef);
+    e = nd2sys(numBef, denBef, 10);
+    q = nd2sys(num, den, gain);
+    q_g = frsp(q, W); 
+    e_g = frsp(e, W);
+    xq=daug(q,q,1);
+    xq1=daug(1,1,1);
+    xe=daug(e, e, 1, 1);
+    Xq=daug(xq1, xq, xq1, xq1, xe);
+    [Aq,Bq,Cq,Dq]=unpck(Xq);
     
-%     s=zpk('s');
-%     Wt=gain*s^2*(s+w1)/(s+w2);
-
-%{%
-figure
-set(gcf, 'Name', 'Input Weights');
-semilogx(W,magt); grid on;
-xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('W_t');xlim([10^(-1) 10^(2)]);ylim([-20 30]);
-%}
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           Ws (MOST IMPORTANT)                         %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-W=logspace(-2,4,100);
-Mag=zeros(length(W),length(X));
-% -------------------------------- wsX ---------------------------------% 
-gain=0.4; 
-    % Phase Lag Filter
-    f1=0.5; f2=2;  w1=2*pi*f1; w2=2*pi*f2; num=[1 w2]; den=[1 w1];
-    % High Pass Filter
-%     f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    % Use conv(num,num) for convolution
-    sys = tf(gain*num,den);
-    magX = bode(sys,W); magX = squeeze(magX); magX = 20*log10(magX); 
-    wsX = nd2sys(num,den,gain);
-% -------------------------------- wsY ---------------------------------% 
-gain=10;
-%     % Phase Lead Filter
-%     f1=0.1; f2=0.3; w1=2*pi*f1;w2=2*pi*f2; gain=gain*(w2/w1);
-%     numLead=[1 w1]; denLead=[1 w2];
-    % High Pass Filter
-    f= 0.3; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    % Combining Both Phase Lag Filter and Band Pass Filter
-%     num=conv(numLow,numLead); den=conv(denLow,denLead); 
-    sys = tf(gain*num,den);
-    magY = bode(sys,W); magY = squeeze(magY); magY = 20*log10(magY); 
-    wsY = nd2sys(num,den,gain);
-% -------------------------------- wsZ ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magZ = bode(sys,W); magZ = squeeze(magZ); magZ = 20*log10(magZ);
-    wsZ = nd2sys(num,den,gain);
-% -------------------------------- wsU ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magU = bode(sys,W); magU = squeeze(magU); magU = 20*log10(magU); 
-    wsU = nd2sys(num,den,gain);
-% -------------------------------- wsV ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magV = bode(sys,W); magV = squeeze(magV); magV = 20*log10(magV); 
-    wsV = nd2sys(num,den,gain);
-% -------------------------------- wsW ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magW = bode(sys,W); magW = squeeze(magW); magW = 20*log10(magW); 
-    wsW = nd2sys(num,den,gain);
-% -------------------------------- wsPh ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magPh = bode(sys,W); magPh = squeeze(magPh); magPh = 20*log10(magPh); 
-    wsPh = nd2sys(num,den,gain);
-% -------------------------------- wsTh ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magTh = bode(sys,W); magTh = squeeze(magTh); magTh = 20*log10(magTh); 
-    wsTh = nd2sys(num,den,gain);
-% -------------------------------- wsPs ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magPs = bode(sys,W); magPs = squeeze(magPs); magPs = 20*log10(magPs); 
-    wsPs = nd2sys(num,den,gain);
-% -------------------------------- wsP ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magP = bode(sys,W); magP = squeeze(magP); magP = 20*log10(magP); 
-    wsP = nd2sys(num,den,gain);
-% -------------------------------- wsQ ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magQ = bode(sys,W); magQ = squeeze(magQ); magQ = 20*log10(magQ); 
-    wsQ = nd2sys(num,den,gain);
-% -------------------------------- wsR ---------------------------------% 
-gain=1.4; f= 0.1; ze=0.7; w=2*pi*f; num=[1 0 0]; den=[1 2*ze*w w^2];
-    sys = tf(gain*num,den);
-    magR = bode(sys,W); magR = squeeze(magR); magR = 20*log10(magR); 
-    wsR = nd2sys(num,den,gain);
-% Integrate all weights into one, as daug only allows upto 9 inputs
-Ws = daug(wsX,wsY,wsZ,wsU,wsV,wsW);
-%{
-num=1;den=1;gain=1; ws=nd2sys(num,den,gain);
-wsZ=ws;wsW=ws;wsPh=ws;wsTh=ws;wsPs=ws;wsP=ws;wsQ=ws;wsR=ws;
-ws1 = daug(wsX,wsY,wsZ,wsU,wsV,wsW);
-ws2 = daug(wsPh,wsTh,wsPs,wsP,wsQ,wsR);
-WsAll = daug(ws1,ws2);
-%}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                   Plot                                %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% plot of Performance Weighting Function
-%{
-figure
-set(gcf, 'Name', 'Performance Weighting Function');
-semilogx(W,magX,W,magY,W,magZ, W,magU, W,magV, W,magW, W,magPh, W,magTh, W,magPs, W,magP,W,magQ,W,magR);
-xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
-legend('{\itx}','{\ity}','{\itz}','{\itu}','{\itv}','{\itw}','\phi','\theta','\psi','{\itp}','{\itq}','{\itr}'); grid on; 
-%}
-figure
-set(gcf, 'Name', 'Performance Weighting Function');
-semilogx(W/(2*pi),magX, W/(2*pi),magY, W/(2*pi),magZ, W/(2*pi),magU, W/(2*pi),magV,  W/(2*pi),magW);
-xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
-legend('{\itW_x}','{\itW_y}','{\itW_z}','{\itW_u}','{\itW_v}','{\itW_w}'); grid on; xlim([10^(-2) 10^(1)]);ylim([-20 30]);
-
-% Plot of Inverse of Performance Weighting Function (sensitivity)
-%{
-figure('Position',[1921 97 1280 907])
-set(gcf, 'Name', 'Sensitivity');
-% semilogx(W,-magX, W,-magY, W,-magZ, W,-magPh, W,-magTh, W,-magPs);
-semilogx(W,-magX, W,-magY, W,-magZ, W,-magV, W,-magPh, W,-magTh, W,-magPs);
-xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
-legend('x','y','z','v','\phi','\theta','\psi'); grid on; 
-%}
-
-Mag(:,1)=magX; Mag(:,2)=magY; Mag(:,3)=magZ;
-Mag(:,4)=magU; Mag(:,5)=magV; Mag(:,6)=magW;
-Mag(:,7)=magPh; Mag(:,8)=magTh; Mag(:,9)=magPs;
-Mag(:,10)=magP; Mag(:,11)=magQ; Mag(:,12)=magR;
+gain=10; f=0.5; w=2*pi*f; num=w; den=[1 w];
+    r = nd2sys(num, den, gain); 
+    Xr=daug(1,r,r,1);
+    [Ar,Br,Cr,Dr]=unpck(Xr);
+    r_g = frsp(r, W); r_g=minv(r_g); figure; vplot('liv,lm', q_g, r_g, e_g);
+    title('Frequency Weight'); xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itW_q}', '{\itW_r}', '{\itW_e}');
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                         Augmented General Plant                        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Aag=[Aap                              zeros(length(Aap),length(Aq))     Bap*Cr;
+    Bq                                Aq                              zeros(length(Aq),length(Ar));
+    zeros(length(Ar),length(Aap))     zeros(length(Ar),length(Aq))    Ar];
+Bag=[Bap*Dr;
+    zeros(length(Aq), size(Br,2));
+    Br];
+Cag=[Dq Cq zeros(size(Cq,1), length(Ar))]; Dag=zeros(size(Cag,1), size(Bag,2));
+[K_lqr, Pg, e] = lqr(Aag, Bag, eye(size(Aag)), eye(size(Bag,2)));
+Kx=K_lqr(:,1:length(Aap));     Kq=K_lqr(:,length(Aap)+1:length(Aap)+length(Aq));     Kr=K_lqr(:,length(Aap)+length(Aq)+1:length(Aap)+length(Aq)+length(Ar));

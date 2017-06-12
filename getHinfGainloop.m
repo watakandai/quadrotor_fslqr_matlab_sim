@@ -78,14 +78,17 @@ for i=1:n
     allComb=allComb+size(nchoosek(Ns,i),1);
 end
 for i=1:n
-    Indexes=nchoosek(Ns,i);
-    numComb=size(Indexes,1);
+    % Choose i out of Ns, ex) 12Ci
+    Indexes=nchoosek(Ns,i);     % all combinations
+    numComb=size(Indexes,1);    % num of combinations
     for j=1:numComb
         countComb=countComb+1;
         waitbar(countComb/allComb,h,sprintf('Nth:%i, Combo:%i, Loops:%i/%i',i,numComb,countComb,allComb));
         Dslct=zeros(1,n);
+        % one of all combinations ex) 1 2 5 10
         index=Indexes(j,:);
         for k=1:i
+            % one of the element from the chosen combination ex) 5
             elem=index(k);
             Dslct(k,elem)=1;
         end

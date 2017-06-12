@@ -9,7 +9,11 @@
 %               d = disturbance;    % [fwx,fwy,fwz,twx,twy,tw]
 %               y = output;         % Leave it for now. Depends on sensors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+W=logspace(-2,3,100);
 %% States
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                             Quadrotor SS                               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    x,  y,  z,  u,  v,  w, phi, th, psi, p, q,  r;
 %{%
 A = [0   0   0   1   0   0   0   0   0   0   0   0;
@@ -25,8 +29,8 @@ A = [0   0   0   1   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0];
  %}
-%{
 ep=10^(-9);
+%{
 %    x,  y,  z,  u,     v,      w,      phi,    th,     psi,    p,      q,      r;
 A = [0   0   0   1      -ep      ep      0       ep      -ep     0       0       0;
      0   0   0   ep     1       -ep     -ep     0       ep      0       0       0;
@@ -70,9 +74,23 @@ B = [0     0       0       0;
      0     0       1/Iyy   0;
      0     0       0       1/Izz];
 C = eye(12); 
-% D = 0.001*ones(size(C,1), size(B,2));
 D = zeros(size(C,1), size(B,2));
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                             Augmented Plant                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Cref = [1 0 0 0 0 0 0 0 0 0 0 0;
+        0 1 0 0 0 0 0 0 0 0 0 0;
+        0 0 1 0 0 0 0 0 0 0 0 0;
+        0 0 0 0 0 0 0 0 1 0 0 0];
+Aap = [A    zeros(length(A), size(Cref,1));
+       -Cref   zeros(size(Cref,1), size(Cref,1))];
+Bap = [B; zeros(size(Cref,1), size(B,2))];
+Cap = [C zeros(size(C,1), size(Cref,1))];
+Dap = zeros(size(Cap,1), size(D,2));
 
+
+%%
+%{
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %{
 %   fwx,    fwy,    fwz,    twx,    twy,    twz
@@ -93,12 +111,13 @@ Dd = [0        0       0       0       0       0;
 % https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
 % a lot to think of
 %}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                             poles and zeros                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 P = pck(A,B,C,D);
-w=logspace(0,2,100);
 % Bode Diagram of Plant P
 
-P_g = frsp(P,w);
+P_g = frsp(P,W);
 %{
 for i=1:length(A)
    Psel_g = sel(P_g, i, 1:size(B,2));
@@ -118,11 +137,11 @@ for i=1:size(B,2)
     end
 end
 %}
-figure
-pzmap(Pss);
+% figure
+% pzmap(Pss);
 
 % Transfer Function of P (from 4inputs to 12 outputs)
-tf(Pss)
+tfmat = tf(Pss);
 spoles(P)
 
 %{
@@ -144,6 +163,7 @@ systf=[ 0   0   tf4     0;
         0   0   0       tf1];
 Pss = ss(systf);
 P = pck(Pss.A,Pss.B,Pss.C,Pss.D);
+%}
 %}
 %% Checking for Controllability & Observability
 co=ctrb(A,B);
@@ -168,4 +188,3 @@ else
    end
 end
 Observability = rank(obs)
-
