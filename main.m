@@ -32,7 +32,7 @@ setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 5;
+t_end = 10;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
@@ -43,6 +43,7 @@ U = U0;
 % Umotor = [m*g 0 0 0]';
 % Reference States
 Xref = [1 1 1 0]';  % x, y, z, psi
+Xref = [0 0 0 0]';  % x, y, z, psi
 % boxes to store data
 T_data = T;                                    % time t
 X_data = zeros(length(X), length(T_data));     % state x
@@ -55,7 +56,7 @@ U_data = zeros(length(U), length(T_data));     % input u to the motor
 % setWeights
 % setWeightsNew
 % Calculate Control Gain K
-% getLQRGain;
+getLQRGain;
 % getExpLQRGain;
 % getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
@@ -63,7 +64,6 @@ U_data = zeros(length(U), length(T_data));     % input u to the motor
 %%
 % rungekutta simulation
 rungekutta
-    
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %

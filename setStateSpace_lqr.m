@@ -87,6 +87,8 @@ Aap = [A    zeros(length(A), size(Cref,1));
 Bap = [B; zeros(size(Cref,1), size(B,2))];
 Cap = [C zeros(size(C,1), size(Cref,1))];
 Dap = zeros(size(Cap,1), size(D,2));
+%%
+%{
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Frequency Weight                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -172,7 +174,7 @@ vplot('liv,lm',vsvd(CLrotat_g));
 legend('{\phi}','{\theta}','{\psi}');
 % legend('{\phi}','{\theta}','{\psi}','{\it p}','{\it q}','{\it r}');
 title('Disturbance Response');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
-
+%}
 %%
 % Disturbances (This matrix will be needed for Hinfinity Controller)
 %{
@@ -197,6 +199,7 @@ Dd = [0        0       0       0       0       0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                             poles and zeros                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
 P = pck(A,B,C,D);
 % Bode Diagram of Plant P
 
@@ -246,6 +249,7 @@ systf=[ 0   0   tf4     0;
         0   0   0       tf1];
 Pss = ss(systf);
 P = pck(Pss.A,Pss.B,Pss.C,Pss.D);
+%}
 %}
 %% Checking for Controllability & Observability
 co=ctrb(A,B);
