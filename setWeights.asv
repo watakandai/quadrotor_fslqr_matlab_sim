@@ -22,7 +22,7 @@ gain=10; f=0.5; w=2*pi*f; num=w; den=[1 w];
     Xr=daug(1,r,r,1);
     [Ar,Br,Cr,Dr]=unpck(Xr);
     r_g = frsp(r, W); r_g=minv(r_g); figure; vplot('liv,lm', q_g, r_g);
-    title('Frequency Weight'); xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itQ}', '{\itR}');
+    title('Frequency Weight'); xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itQ(j{\itw})}', '{\itR(j\itw)}');
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                         Augmented General Plant                        %

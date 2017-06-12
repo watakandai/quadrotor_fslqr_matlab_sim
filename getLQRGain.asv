@@ -48,7 +48,7 @@ eap = [ 10 0 0 0;
         0 0 1  0;
         0 0 0 1];
 Qap = [ Qap                                 zeros(length(Qap), size(Bap,2));
-        zeros(size(Bap,2), length(Qap))     eap];
+        zeros(size(Bap,2), length(Qap))     diag(10,10,1,1)];
     
 Rap = eye(4);
 [K_explqr, Pg, e] = lqr(Aap, Bap, Qap, Rap);
