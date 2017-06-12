@@ -1,13 +1,16 @@
-% Xctr_data = zeros(size(Actr,1),length(T_data));
-% Xctr = zeros(size(Actr,1),1);
+X = X0;
+U = U0;
+% boxes to store data
+T_data = T;                                    % time t
+X_data = zeros(length(X), length(T_data));     % state x
+U_data = zeros(length(U), length(T_data));     % input u to the motor
 XE = zeros(length(X)+length(Xref), 1);
 XE_data = zeros(length(XE), length(T_data));
 E = zeros(length(Xref),1);
 E_data = zeros(length(E), length(T_data));
 Xk = zeros(size(Ak,1),1);
 Xk_data = zeros(length(Xk),length(T_data));
-Amp = 0.01;
-freq = 0.5;
+
 for t=1:(length(T))     % t=0 ~ t=t_end
 % Save Data
     T_data(:,t)  = t*dt;                        % time  t
@@ -48,15 +51,4 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     dXk4 = getdX(Xk+dXk3, XE, Ak, Bk)*dt;
     Xk = Xk+(dXk1+2*dXk2+2*dXk3+dXk4)/6;
     U = Ck*Xk + Dk*XE;
-    % ------------------------- For Hinfinity ---------------------------%
-%     % Difference between Ref and States
-%     E = Xref-X;
-%     % Runge kutta for Controller
-%     dXctr1 = getdX(Xctr, E, Actr,Bctr)*dt;
-%     dXctr2 = getdX(Xctr+dXctr1/2, E, Actr,Bctr)*dt;
-%     dXctr3 = getdX(Xctr+dXctr2/2, E, Actr,Bctr)*dt;
-%     dXctr4 =getdX(Xctr+dXctr3, E, Actr,Bctr)*dt;  
-%     Xctr = Xctr+(dXctr1+2*dXctr2+2*dXctr3+dXctr4)/6;
-%     U = Cctr*Xctr + Dctr*E;
-%     % Umotor = alpha*U + (1-alpha)*Umotor;
 end

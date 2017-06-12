@@ -32,38 +32,33 @@ setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 5;
+t_end = 10;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
 X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
 U0 = [0 0 0 0]';
-X = X0;
-U = U0;
-% Umotor = [m*g 0 0 0]';
+
 % Reference States
-Xref = [1 1 1 0]';  % x, y, z, psi
-% boxes to store data
-T_data = T;                                    % time t
-X_data = zeros(length(X), length(T_data));     % state x
-U_data = zeros(length(U), length(T_data));     % input u to the motor
-% Umotor_data = zeros(length(U), length(T_data));     % input umotor to the plant
+Xref = [0 0 0 0]';  % x, y, z, psi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % setWeight for desired output and input
-% setWeights
+setWeights
 % setWeightsNew
+
 % Calculate Control Gain K
-% getLQRGain;
-% getExpLQRGain;
+getLQRGain;
 % getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
+Amp = 0.01;
+freq = 0.5;
 % rungekutta simulation
 rungekutta
-    
+rungekutta_explqr
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
@@ -85,6 +80,40 @@ for i=1:size(B,2)
         hold on
     end
 end
+%}
+
+%{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                            Disturbance Resp                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Pap = pck(Aap,Bap,Cap,Dap);
+Wd = daug(daug(0, 0, 0, 1, 1, 1), daug(0, 0, 0, 0, 0, 0));
+
+systemnames = ' Pap Wd ';
+inputvar = '[ dist{12}; control{4} ]';
+outputvar = '[ Pap; -Pap-Wd ]';
+input_to_Wd = '[ dist ]';
+input_to_Pap = '[ control ]';
+sysoutname = 'sim_ic';
+cleanupsysic = 'yes';
+sysic
+CL=starp(sim_ic, Gk, 12, 4);
+CLtrans = sel(CL, 1:3, 1:12);
+CLtrans_g=frsp(CLtrans,W);
+figure
+vplot('liv,lm',vsvd(CLtrans_g));
+legend('{\it x}','{\it y}','{\it z}');
+% legend('{\it x}','{\it y}','{\it z}','{\it u}','{\it v}','{\it w}');
+title('Disturbance Response');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
+
+CLrotat = sel(CL, 7:9, 1:12);
+CLrotat_g=frsp(CLrotat,W);
+figure
+vplot('liv,lm',vsvd(CLrotat_g));
+legend('{\phi}','{\theta}','{\psi}');
+% legend('{\phi}','{\theta}','{\psi}','{\it p}','{\it q}','{\it r}');
+title('Disturbance Response');xlabel('Frequency [rad/s]'); ylabel('Gain [dB]');
+
 %}
 % drawFigures
 %% 

@@ -10,12 +10,13 @@ for i=1:numData
     elseif indexSubplot==0; indexSubplot=numSubplot;
     end
     subplot(numSubplot,1,indexSubplot)
-    plot(T, X_data(i,:));
+    plot(T, X_data(i,:), T, Xlqr_data(i,:));
     xlabel(XLabels(1)); ylabel(YLabels(i));grid on;
-    legend
+    legend('Frequency-Shaped LQR','LQR')
 end
 
 %%  3D
+%{
 vidObj = VideoWriter(sprintf('Motion_f=%i.avi', freq));
 open(vidObj)
 
@@ -36,3 +37,4 @@ for t=1:length(T)-1
 end
 
 close( vidObj );
+%}
