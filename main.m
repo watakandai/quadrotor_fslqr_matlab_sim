@@ -54,7 +54,7 @@ getLQRGain;
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
-Amp = 0.01;
+Amp = 0.1;
 freq = 0.5;
 % rungekutta simulation
 rungekutta

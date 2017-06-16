@@ -40,8 +40,12 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
 
     % Sign Disturbance 
-    x = Amp * sin(2*pi*freq*t*dt);
-    Dist=[0 0 0 x x x 0 0 0 0 0 0 ]';
+    if t < (1/freq/dt/2)
+        x = Amp * sin(2*pi*freq*t*dt);
+        Dist=[0 0 0 x x x 0 0 0 0 0 0 ]';
+    else
+        Dist=[0 0 0 0 0 0 0 0 0 0 0 0 ]';
+    end
     X = X+Dist;
     % ------------------------ For Expanded LQR ---------------------------%
     XE(1:length(X)) = X;
