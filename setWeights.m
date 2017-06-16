@@ -14,10 +14,10 @@ f=0.5; ze=0.5; w=2*pi*f; numBef=[1 2*ze*w w^2]; denBef=[1 0 w^2];
     xq=daug(q,q,1);
     xq1=daug(1,1,1);
     xe=daug(e, e, 1, 1);
-    Xq=daug(xq1, xq, xq1, xq1, xe);
+    Xq=daug(xq, xq, xq1, xq1, xe);
     [Aq,Bq,Cq,Dq]=unpck(Xq);
     
-gain=10; f=0.5; w=2*pi*f; num=w; den=[1 w];
+gain=10; f=0.1; w=2*pi*f; num=w; den=[1 w];
     r = nd2sys(num, den, gain); 
     Xr=daug(1,r,r,1);
     [Ar,Br,Cr,Dr]=unpck(Xr);

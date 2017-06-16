@@ -41,12 +41,4 @@ close( vidObj );
 %}
 
 %% FFT
-
-n = 2^nextpow2(length(T));
-fftx = fft(X_data(1,:),n);
-Fs=1/dt;
-f = Fs*(0:(n/2))/n;
-P = abs(fftx/n);
-figure
-plot(f,P(1:n/2+1))
-
+X
