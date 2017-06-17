@@ -25,23 +25,20 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     XE = XE+(dXE1+2*dXE2+2*dXE3+dXE4)/6;
     
     % ------------------------- For Plant ---------------------------%
+    % Sign Disturbance 
+    if t < (1/freq/dt/2)
+        vw = Amp * sin(2*pi*freq*t*dt);
+        Vw=[vw vw vw]';
+    else
+        Vw=[0 0 0]';
+    end
     % NonlinearDynamics (Equation of Motion)
-    dX1 = getNonlineardX_body(X, U)*dt;
-    dX2 = getNonlineardX_body(X+dX1/2, U)*dt;
-    dX3 = getNonlineardX_body(X+dX2/2, U)*dt;
-    dX4 = getNonlineardX_body(X+dX3, U)*dt;  
+    dX1 = getNonlineardX_body(X, U, Vw)*dt;
+    dX2 = getNonlineardX_body(X+dX1/2, U, Vw)*dt;
+    dX3 = getNonlineardX_body(X+dX2/2, U, Vw)*dt;
+    dX4 = getNonlineardX_body(X+dX3, U, Vw)*dt;  
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
 
-    % Sign Disturbance 
-    x = Amp * sin(2*pi*freq*t*dt);
-    if t < (1/freq/dt/2)
-        x = Amp * sin(2*pi*freq*t*dt);
-        Dist=[0 0 0 x x x 0 0 0 0 0 0 ]';
-    else
-        Dist=[0 0 0 0 0 0 0 0 0 0 0 0 ]';
-    end
-    X = X+Dist;
-    
     XE(1:length(X)) = X;
     
     U = - K_explqr*XE;

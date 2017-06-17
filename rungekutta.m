@@ -32,21 +32,20 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     E = XE(1+length(X):length(X)+length(E));
 
     % ------------------------- For Plant ---------------------------%
-    % NonlinearDynamics (Equation of Motion)
-    dX1 = getNonlineardX_body(X, U)*dt;
-    dX2 = getNonlineardX_body(X+dX1/2, U)*dt;
-    dX3 = getNonlineardX_body(X+dX2/2, U)*dt;
-    dX4 = getNonlineardX_body(X+dX3, U)*dt;  
-    X = X+(dX1+2*dX2+2*dX3+dX4)/6;
-
     % Sign Disturbance 
     if t < (1/freq/dt/2)
-        x = Amp * sin(2*pi*freq*t*dt);
-        Dist=[0 0 0 x x x 0 0 0 0 0 0 ]';
+        vw = Amp * sin(2*pi*freq*t*dt);
+        Vw=[vw vw vw]';
     else
-        Dist=[0 0 0 0 0 0 0 0 0 0 0 0 ]';
+        Vw=[0 0 0]';
     end
-    X = X+Dist;
+    % NonlinearDynamics (Equation of Motion)
+    dX1 = getNonlineardX_body(X, U, Vw)*dt;
+    dX2 = getNonlineardX_body(X+dX1/2, U, Vw)*dt;
+    dX3 = getNonlineardX_body(X+dX2/2, U, Vw)*dt;
+    dX4 = getNonlineardX_body(X+dX3, U, Vw)*dt;  
+    X = X+(dX1+2*dX2+2*dX3+dX4)/6;
+
     % ------------------------ For Expanded LQR ---------------------------%
     XE(1:length(X)) = X;
     dXk1 = getdX(Xk, XE, Ak, Bk)*dt;

@@ -12,7 +12,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % NonLinear Model
-function dX = getNonlineardX(X, U)
+function dX = getNonlineardX_body(X, U, Vw)
 % Physical Parameters of Quadrotor
 setParameters
 
@@ -37,7 +37,7 @@ fxu=[w*(phi*psi+th)-v*(psi-phi*th)+u;
      ((Iyy-Izz)*q*r + tx)/Ixx;
      ((Izz-Ixx)*p*r + ty)/Iyy;
      ((Ixx-Iyy)*p*q + tz)/Izz];
- 
+%{
  %   fwx,    fwy,    fwz,    twx,    twy,    twz
 Dd = [0        0       0       0       0       0;
       0        0       0       0       0       0;
@@ -51,5 +51,22 @@ Dd = [0        0       0       0       0       0;
       0        0       0       1/Ixx   0       0;
       0        0       0       0         1/Iyy   0;
       0        0       0       0       0       1/Izz];
+%}  
+Dd = [0        0       0       0       0       0;
+      0        0       0       0       0       0;
+      0        0       0       0       0       0;
+      1/m      0       0       0       0       0;
+      0        1/m     0       0       0       0;
+      0        0       1/m     0       0       0;
+      0        0       0       0       0       0;
+      0        0       0       0       0       0;
+      0        0       0       0       0       0;
+      0        0       0       1/Ixx   0       0;
+      0        0       0       0         1/Iyy   0;
+      0        0       0       0       0       1/Izz]; 
+Dd = Dd(1:12, 1:3);
+Cd = diag([0.25 0.25 0.25]);
+
 % dX = fxu + Dd*wgn(size(Dd,2),1, 0.1);
-dX = fxu;
+dX = fxu + 1/2*rho*Dd*Cd*Vw.^2;
+% dX = fxu;
