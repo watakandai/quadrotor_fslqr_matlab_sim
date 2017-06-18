@@ -16,7 +16,7 @@
 %               y = output;         % Leave it for now. Depends on sensors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc
-close all
+% close all
 setFormats
 setLabels
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,8 +54,9 @@ getLQRGain;
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
-Amp = 8;
+Amp = 6;
 freq = 0.5;
+flagSine=0; % 1 is Sine, 0 is just one wave
 % rungekutta simulation
 rungekutta
 rungekutta_explqr
@@ -64,9 +65,9 @@ rungekutta_explqr
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % f, tx, ty, tz
-draw_input
+% draw_input
 % phi, th, psi, p, q, r
-draw_rotational_motion
+% draw_rotational_motion
 % x, y, z, u, v, w,
 draw_translational_motion
 %%
