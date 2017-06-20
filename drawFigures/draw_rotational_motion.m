@@ -8,7 +8,7 @@ for i=7:12
     elseif indexSubplot==0; indexSubplot=numSubplot;
     end
     subplot(numSubplot,1,indexSubplot)
-    plot(T, X_data(i,:), T,  Xlqr_data(i,:));
+    plot(T, Xlqr_data(i,:)*180/pi(), T,  X_data(i,:)*180/pi());
     xlabel(XLabels(1)); ylabel(YLabels(i));grid on;
-    legend('Frequency-Shaped LQR','LQR')
+    legend('LQR','Frequency-Shaped LQR')
 end

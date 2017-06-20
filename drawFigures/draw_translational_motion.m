@@ -10,9 +10,9 @@ for i=1:numData
     elseif indexSubplot==0; indexSubplot=numSubplot;
     end
     subplot(numSubplot,1,indexSubplot)
-    plot(T, X_data(i,:), T, Xlqr_data(i,:));
+    plot(T, Xlqr_data(i,:), T, X_data(i,:));
     xlabel(XLabels(1)); ylabel(YLabels(i));grid on;
-    legend('Frequency-Shaped LQR','LQR')
+    legend('LQR','Frequency-Shaped LQR')
 end
 
 %%  3D
@@ -60,12 +60,13 @@ Pylqr = abs(fftylqr/n);
 Pz = abs(fftz/n);
 Pzlqr = abs(fftzlqr/n);
 
-figure
+range=20;
+figure; 
 subplot(3,1,1);
-plot(f(1:20),Px(1:20), f(1:20), Pxlqr(1:20));
-legend('exp', 'lqr')
+plot(f(1:range),Pxlqr(1:range), f(1:range), Px(1:range)); ylabel('{\itP_x}'); grid on;
+legend('LQR','Frequency-Shaped LQR')
 subplot(3,1,2);
-plot(f(1:20),Py(1:20), f(1:20), Pylqr(1:20));
+plot(f(1:range),Pylqr(1:range), f(1:range), Py(1:range)); ylabel('{\itP_y}'); grid on;
 subplot(3,1,3);
-plot(f(1:20),Pz(1:20), f(1:20), Pzlqr(1:20));
-
+plot(f(1:range),Pzlqr(1:range), f(1:range), Pz(1:range)); ylabel('{\itP_z}'); grid on;
+xlabel('Frequency [Hz]'); 
