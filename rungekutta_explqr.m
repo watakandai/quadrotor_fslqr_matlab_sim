@@ -26,10 +26,17 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     
     % ------------------------- For Plant ---------------------------%
     % Sign Disturbance 
-    if t < (1/freq/dt/2)
+    if flagSine==1
+        if t < (1/freq/dt/2)
+            vw = Amp * sin(2*pi*freq*t*dt);
+            Vw=[vw vw vw]';
+        else
+            Vw=[0 0 0]';
+        end
+    elseif flagSine==111
         vw = Amp * sin(2*pi*freq*t*dt);
         Vw=[vw vw vw]';
-    else
+    elseif flagSine==0
         Vw=[0 0 0]';
     end
     % NonlinearDynamics (Equation of Motion)
