@@ -32,7 +32,7 @@ setStateSpace_lqr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 30;
+t_end = 20;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
@@ -40,7 +40,7 @@ X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
 U0 = [0 0 0 0]';
 
 % Reference States
-Xref = [0 0 0 0]';  % x, y, z, psi
+Xref = [0 00  0]';  % x, y, z, psi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,9 +54,9 @@ getLQRGain;
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
-Amp = Vwind;
+Amp = 6;
 freq = 1;
-flagSine=3; % 111 is Sine, 1 is just one wave
+flagSine=0; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
 rungekutta_explqr

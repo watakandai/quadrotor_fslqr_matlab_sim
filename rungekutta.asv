@@ -10,9 +10,6 @@ E = zeros(length(Xref),1);
 E_data = zeros(length(E), length(T_data));
 Xk = zeros(size(Ak,1),1);
 Xk_data = zeros(length(Xk),length(T_data));
-Vwind = zeros(length(Au)+length(Av)+length(Aw), 1);
-Vw = zeros(3,1);
-Vw_data=zeros(length(Vw), length(T_data));
 
 for t=1:(length(T))     % t=0 ~ t=t_end
 % Save Data
@@ -21,7 +18,6 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Xk_data(:,t) = Xk;
     U_data(:,t) = U;                            % input u
     E_data(:,t) = E;
-    Vw_data(:,t) = Vw ;
 %     Xctr_data(:,t) = Xctr;                  % state of controller
 %     Umotor_data(:,t) = Umotor;
 
@@ -37,28 +33,20 @@ for t=1:(length(T))     % t=0 ~ t=t_end
 
     % ------------------------- For Plant ---------------------------%
     % Sign Disturbance 
-    if flagSine==1
-        if t < (1/freq/dt/2)
-            vw = Amp * sin(2*pi*freq*t*dt);
-            Vw=[vw vw vw]';
-        else
-            Vw=[0 0 0]';
-        end
-    elseif flagSine==111
+    if t < (1/freq/dt/2)
         vw = Amp * sin(2*pi*freq*t*dt);
         Vw=[vw vw vw]';
-    elseif flagSine==0
+    else
         Vw=[0 0 0]';
-    elseif flagSine==3
-        Wv = wgn(3,1,1);
-        dVwind1 = getdVwind(Vwind, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
-        dVwind2 = getdVwind(Vwind+dVwind1/2, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
-        dVwind3 = getdVwind(Vwind+dVwind2/2, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
-        dVwind4 = getdVwind(Vwind+dVwind3, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
-        Vwind = Vwind + (dVwind1+2*dVwind2+2*dVwind3+dVwind4)/6;
-        Vw = Cwind*Vwind;
     end
-
+    
+    Wv = wgn(3,1,1);
+    dVw1 = getdVw(Vw)*dt;
+    dVw2 = getdVw(Vw+dV1/2, Wv)*dt;
+    dVw3 = getdVw(Vw+dVw2/2, Wv)*dt;
+    dVw4 = getdVw(Vw+dVw3, Wv)*dt;
+    Vw = Vw + (dVw1+2*dVw2+2*dVw3+dVw4)/6;
+    
     % NonlinearDynamics (Equation of Motion)
     dX1 = getNonlineardX_body(X, U, Vw)*dt;
     dX2 = getNonlineardX_body(X+dX1/2, U, Vw)*dt;

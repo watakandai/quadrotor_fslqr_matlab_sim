@@ -8,6 +8,9 @@ Elqr_data = zeros(length(E), length(T_data));
 
 XE = zeros(length(X)+length(Xref), 1);
 E = zeros(length(Xref),1);
+Vwind = zeros(length(Au)+length(Av)+length(Aw), 1);
+Vw = zeros(3,1);
+Vwlqr_data=zeros(length(Vw), length(T_data));
 
 for t=1:(length(T))     % t=0 ~ t=t_end
 % Save Data
@@ -15,6 +18,7 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Xlqr_data(:,t)  = X;                         % state x
     Ulqr_data(:,t) = U;                            % input u
     Elqr_data(:,t) = E;
+    Vwlqr_data(:,t) = Vw ;
 
     % ----------------------- For Integral -------------------------%
     % x, y, z, psi
@@ -38,7 +42,16 @@ for t=1:(length(T))     % t=0 ~ t=t_end
         Vw=[vw vw vw]';
     elseif flagSine==0
         Vw=[0 0 0]';
+    elseif flagSine==3
+        Wv = wgn(3,1,1);
+        dVwind1 = getdVwind(Vwind, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
+        dVwind2 = getdVwind(Vwind+dVwind1/2, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
+        dVwind3 = getdVwind(Vwind+dVwind2/2, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
+        dVwind4 = getdVwind(Vwind+dVwind3, Wv, Au,Av,Aw,Bu,Bv,Bw)*dt;
+        Vwind = Vwind + (dVwind1+2*dVwind2+2*dVwind3+dVwind4)/6;
+        Vw = Cwind*Vwind;
     end
+    
     % NonlinearDynamics (Equation of Motion)
     dX1 = getNonlineardX_body(X, U, Vw)*dt;
     dX2 = getNonlineardX_body(X+dX1/2, U, Vw)*dt;
