@@ -28,8 +28,12 @@ gain=1; f=10; w=2*pi*f; num=w; den=[1 w];
     r = nd2sys(num, den, gain); 
     Xr=daug(r,r,r,1);
     [Ar,Br,Cr,Dr]=unpck(Xr);
-    r_g = frsp(r, W); r_g=minv(r_g); figure; vplot('liv,lm', qx_g, r_g);
-    title('Frequency Weight'); xlabel('Frequency [rad/s]'); ylabel('Gain [dB]'); legend('{\itW_q_x}', '{\itW_r}');
+    r_g = frsp(r, W); r_g=minv(r_g); 
+    qx_g_unpck = vunpck(vnorm(qx_g));
+    r_g_unpck = vunpck(vnorm(r_g));
+    figure; loglog(W/(2*pi), qx_g_unpck, W/(2*pi), r_g_unpck); grid on;
+    xlim([10^-2 10^2]);
+    title('Frequency Weight'); xlabel('Frequency [Hz]'); ylabel('Gain [dB]'); legend('{\itq}', '{\itr}');
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                         Augmented General Plant                        %
