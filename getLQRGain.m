@@ -32,24 +32,12 @@ R = eye(4);
 [K_lqr, P, e] = lqr(A, B, Q, R);
 % [K, P, e] = lqr(A, B, Q, R);
 
-Qap = [ 1   0  0  0  0  0  0  0  0  0  0  0;
-        0   1  0  0  0  0  0  0  0  0  0  0;
-        0   0  1  0  0  0  0  0  0  0  0  0;
-        0   0  0  1  0  0  0  0  0  0  0  0;
-        0   0  0  0  1  0  0  0  0  0  0  0;
-        0   0  0  0  0  1  0  0  0  0  0  0;
-        0   0  0  0  0  0  1  0  0  0  0  0;
-        0   0  0  0  0  0  0  1  0  0  0  0;
-        0   0  0  0  0  0  0  0  1  0  0  0;
-        0   0  0  0  0  0  0  0  0  1  0  0;
-        0   0  0  0  0  0  0  0  0  0  1  0;
-        0   0  0  0  0  0  0  0  0  0  0  1];
 eap = [ 1 0 0 0;
         0 1 0 0;
         0 0 1 0;
         0 0 0 1];
-Qap = [ Qap                                 zeros(length(Qap), size(Bap,2));
-        zeros(size(Bap,2), length(Qap))     eap];
+Qap = [ Q                                   zeros(length(Q), size(Bap,2));
+        zeros(size(Bap,2), length(Q))     eap];
     
 Rap = eye(4);
 [K_explqr, Pg, e] = lqr(Aap, Bap, Qap, Rap);
