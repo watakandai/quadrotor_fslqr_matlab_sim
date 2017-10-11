@@ -25,14 +25,13 @@ setLabels
 % Physical Parameters of Quadrotor 
 setParameters
 % State Space A,B,C,D
-% setStateSpace
-setStateSpace_lqr
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Initial States & Reference States                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 30;
+t_end = 10;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
@@ -41,9 +40,14 @@ U0 = [0 0 0 0]';
 
 % Reference States
 Xref = [0 0 0 0]';  % x, y, z, psi
+
+% Freq.
+W=logspace(-2,3,100);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% setStateSpace
+setStateSpace
 % setWeight for desired output and input
 setWeights
 % setWeightsNew
@@ -56,7 +60,7 @@ getLQRGain;
 %%
 Amp = Vwind;
 freq = 1;
-flagSine=3; % 111 is Sine, 1 is just one wave
+flagSine=1; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
 rungekutta_explqr
@@ -65,7 +69,7 @@ rungekutta_explqr
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % f, tx, ty, tz
-% draw_input
+draw_input
 % phi, th, psi, p, q, r
 draw_rotational_motion
 % x, y, z, u, v, w,

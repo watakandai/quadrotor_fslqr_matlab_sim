@@ -14,6 +14,7 @@ Vwind = zeros(length(Au)+length(Av)+length(Aw), 1);
 Vw = zeros(3,1);
 Vw_data=zeros(length(Vw), length(T_data));
 
+tic;
 for t=1:(length(T))     % t=0 ~ t=t_end
 % Save Data
     T_data(:,t)  = t*dt;                        % time  t
@@ -65,7 +66,10 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     dX3 = getNonlineardX_body(X+dX2/2, U, Vw)*dt;
     dX4 = getNonlineardX_body(X+dX3, U, Vw)*dt;  
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
-
+    
+    [A, B] = getSDREState(X);
+    [Ak, Bk, Ck, Dk]=getSDREController(A, B, C, D, Aq,Bq,Cq,Dq, Ar,Br,Cr,Dr);
+    
     % ------------------------ For Expanded LQR ---------------------------%
     XE(1:length(X)) = X;
     dXk1 = getdX(Xk, XE, Ak, Bk)*dt;
@@ -75,3 +79,4 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Xk = Xk+(dXk1+2*dXk2+2*dXk3+dXk4)/6;
     U = Ck*Xk + Dk*XE;
 end
+toc
