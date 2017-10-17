@@ -23,9 +23,16 @@ setLabels
 %                               Parameters                               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Physical Parameters of Quadrotor 
-setParameters
-% State Space A,B,C,D
+m = 0.650;
+Ixx = 7.5*10^(-3);
+Iyy = 7.5*10^(-3);
+Izz = 1.3*10^(-2);
+g=9.81; 
+rho = 1.225;
+l = 0.23;
 
+% Debug Mode?
+DEBUG = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Initial States & Reference States                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,27 +47,36 @@ U0 = [0 0 0 0]';
 
 % Reference States
 Xref = [0 0 0 0]';  % x, y, z, psi
-
+Xref = [0 0 0 0 0 0 0 0 0 0 0 0]';
 % Freq.
 W=logspace(-2,3,100);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% setStateSpace
-setStateSpace
+% State Space A,B,C,D
+[A, B, C, D] = setStateSpace(m, g, Ixx, Iyy, Izz);
+[controllability, observability] = checkContObser(A,B,C);
+if DEBUG==true
+    disp(controllability);
+    disp(observability);
+end
+% Dryden Wind Model State Space
+Vwind=6;
+[Au, Bu, Cu, Du, Av, Bv, Cv, Dv, Aw, Bw, Cw, Dw, Cwind] = setDrydenStateSpace(Vwind);
 % setWeight for desired output and input
-setWeights
+[Aq,Bq,Cq,Dq, Ar,Br,Cr,Dr] = setFreqShapedWeights(W, DEBUG);
 % setWeightsNew
 
 % Calculate Control Gain K
-getLQRGain;
+[Ak, Bk, Ck, Dk] = getFreqShapedLQRGain(A, B, Aq, Bq, Cq, Dq, Ar, Br, Cr, Dr);
+K_lqr = getLQRGain(A, B);
 % getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
 Amp = Vwind;
 freq = 1;
-flagSine=1; % 111 is Sine, 1 is just one wave
+flagSine=111; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
 rungekutta_explqr
@@ -69,11 +85,13 @@ rungekutta_explqr
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % f, tx, ty, tz
-draw_input
+% draw_input
 % phi, th, psi, p, q, r
-draw_rotational_motion
+success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels);
 % x, y, z, u, v, w,
-draw_translational_motion
+success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels);
+success = draw_3d_animation(T, X_data, Xlqr_data, l);
+draw_fft
 %%
 % OpenLoop Analysis (LQR)
 %{

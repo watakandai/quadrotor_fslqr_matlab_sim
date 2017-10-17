@@ -1,3 +1,4 @@
+function success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels)
 %% Figure Angle
 figure
 set(gcf, 'Name', 'Angle LQR');
@@ -12,3 +13,4 @@ for i=7:12
     xlabel(XLabels(1)); ylabel(YLabels(i));grid on;
     legend('LQR','Frequency-Shaped LQR')
 end
+success = true;
