@@ -1,5 +1,4 @@
-function [A, B] = getSDREState(X)
-setParameters
+function [A, B] = getSDREState(X, m, g, Ixx, Iyy, Izz)
 %    x,  y,  z,  u,  v,  w, phi, th, psi, p, q,  r;
 %{%
 A = [0   0   0   1   -X(9)   X(8)   0   0   0   0   0   0;

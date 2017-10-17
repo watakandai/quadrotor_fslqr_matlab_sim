@@ -52,7 +52,7 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     dX4 = getNonlineardX_body(X+dX3, U, Vw)*dt;  
     X = X+(dX1+2*dX2+2*dX3+dX4)/6;
     
-%     [A, B] = getSDREState(X);
+%     [A, B] = getSDREState(X, m, g, Ixx, Iyy, Izz);
 %     [Ak, Bk, Ck, Dk]=getSDREController(A, B, C, D, Aq,Bq,Cq,Dq, Ar,Br,Cr,Dr);
     
     % ------------------------ For Expanded LQR ---------------------------%
