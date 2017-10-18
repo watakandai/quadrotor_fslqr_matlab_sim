@@ -46,8 +46,8 @@ X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
 U0 = [0 0 0 0]';
 
 % Reference States
-Xref = [0 0 0 0]';  % x, y, z, psi
-Xref = [0 0 0 0 0 0 0 0 0 0 0 0]';
+Xref = [1 1 1 0]';  % x, y, z, psi
+% Xref = [0 0 0 0 0 0 0 0 0 0 0 0]';
 % Freq.
 W=logspace(-2,3,100);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,6 +60,9 @@ if DEBUG==true
     disp(controllability);
     disp(observability);
 end
+[Aerror, Cerror, Bpos, Balt, Bphi, Bth, Bpsi] = setCascadedStateSpace(m, g, Ixx, Iyy, Izz);
+[Kx, Ky, Kz, Kphi, Kth, Kpsi] = getCascadedLQRGain(Aerror, Bpos, Balt, Bphi, Bth, Bpsi);
+
 % Dryden Wind Model State Space
 Vwind=6;
 [Au, Bu, Cu, Du, Av, Bv, Cv, Dv, Aw, Bw, Cw, Dw, Cwind] = setDrydenStateSpace(Vwind);
@@ -76,10 +79,10 @@ K_lqr = getLQRGain(A, B);
 %%
 Amp = Vwind;
 freq = 1;
-flagSine=111; % 111 is Sine, 1 is just one wave
+flagSine=0; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
-rungekutta_explqr
+rungekutta_lqr
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %

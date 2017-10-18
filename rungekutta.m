@@ -44,7 +44,7 @@ for t=1:(length(T))     % t=0 ~ t=t_end
         Vwind = Vwind + (dVwind1+2*dVwind2+2*dVwind3+dVwind4)/6;
         Vw = Cwind*Vwind;
     end
-
+    
     % NonlinearDynamics (Equation of Motion)
     dX1 = getNonlineardX_body(X, U, Vw)*dt;
     dX2 = getNonlineardX_body(X+dX1/2, U, Vw)*dt;
