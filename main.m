@@ -38,7 +38,7 @@ DEBUG = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 10;
+t_end = 30;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
@@ -55,13 +55,21 @@ W=logspace(-2,3,100);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % State Space A,B,C,D
 [A, B, C, D] = setStateSpace(m, g, Ixx, Iyy, Izz);
+Ce = [1 0 0 0 0 0 0 0 0 0 0 0;
+      0 1 0 0 0 0 0 0 0 0 0 0
+      0 0 1 0 0 0 0 0 0 0 0 0
+      0 0 0 0 0 0 0 0 1 0 0 0];
+Ae = [A zeros(size(A,1),size(Ce,1)); -Ce zeros(size(Ce,1),size(Ce,1))];
+Be = [B; zeros(size(Ce,1),size(B,2))];
 [controllability, observability] = checkContObser(A,B,C);
+
 if DEBUG==true
     disp(controllability);
     disp(observability);
 end
-[Aerror, Cerror, Bpos, Balt, Bphi, Bth, Bpsi] = setCascadedStateSpace(m, g, Ixx, Iyy, Izz);
-[Kx, Ky, Kz, Kphi, Kth, Kpsi] = getCascadedLQRGain(Aerror, Bpos, Balt, Bphi, Bth, Bpsi);
+[Aerror, Cerror, Bxy, Bz, Bphi, Bth, Bpsi] = setCascadedStateSpace(m, g, Ixx, Iyy, Izz);
+[Kxy, Gxy, FFxy, FFinitxy, Kz, Gz, FFz, FFinitz, Kphi, Gphi, FFphi, FFinitphi, Kpsi, Gpsi, FFpsi, FFinitpsi] = getCascadedLQRGain(Aerror, Bxy, Bz, Bphi, Bpsi);
+Bz = [Bz [0; 0; 1]];
 
 % Dryden Wind Model State Space
 Vwind=6;
@@ -73,28 +81,36 @@ Vwind=6;
 % Calculate Control Gain K
 [Ak, Bk, Ck, Dk] = getFreqShapedLQRGain(A, B, Aq, Bq, Cq, Dq, Ar, Br, Cr, Dr);
 K_lqr = getLQRGain(A, B);
+[Ke, Ge, FFe, FFinie] = getLQRGainServo(A, B, Ae, Be, Ce);
 % getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
 Amp = Vwind;
 freq = 1;
-flagSine=0; % 111 is Sine, 1 is just one wave
+flagSine=111; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
 rungekutta_lqr
+lqr_off = true;
+if lqr_off==true
+    X_data = zeros(size(X_data));
+    U_data = zeros(size(U_data));
+end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+limit = false;
+
 % f, tx, ty, tz
 % draw_input
 % phi, th, psi, p, q, r
-success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels);
+success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
 % x, y, z, u, v, w,
-success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels);
-success = draw_3d_animation(T, X_data, Xlqr_data, l);
-draw_fft
+success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
+success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit);
+% draw_fft
 %%
 % OpenLoop Analysis (LQR)
 %{

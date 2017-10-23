@@ -1,4 +1,4 @@
-function success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels)
+function success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit)
 %% Figure Position
 set(gcf, 'Name', 'Position');
 
@@ -14,6 +14,9 @@ for i=1:numData
     plot(T, Xlqr_data(i,:), T, X_data(i,:));
     xlabel(XLabels(1)); ylabel(YLabels(i));grid on;
     legend('LQR','Frequency-Shaped LQR')
+    if limit==true
+        ylim([-1 1]);
+    end
 end
 success = true;
 

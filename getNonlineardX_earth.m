@@ -28,30 +28,17 @@ f = U(1,1);   tx = U(2,1);  ty = U(3,1);  tz = U(4,1);
 fxu=[u;
      v;
      w;
-     f/m*(cos(phi)*sin(th)*cos(psi)+sin(phi)*sin(psi));
-     f/m*(cos(phi)*sin(th)*sin(psi)-sin(phi)*cos(psi));
-     f/m*(cos(phi)*cos(th))-g;
+     f/m*(cos(phi)*sin(th)*cos(psi)+sin(phi)*sin(psi)); % nearly equal to f/m*th (if psi=0)
+     f/m*(cos(phi)*sin(th)*sin(psi)-sin(phi)*cos(psi)); % nearly equal to -f/m*phi
+     f/m*(cos(phi)*cos(th))-g; % nearly equal to Uhat
      p;
      q;
      r;
-     ((Iyy-Izz)*q*r + tx)/Ixx;
-     ((Izz-Ixx)*p*r + ty)/Iyy;
-     ((Ixx-Iyy)*p*q + tz)/Izz];
-%{
+     ((Iyy-Izz)*q*r + tx)/Ixx; 
+     ((Izz-Ixx)*p*r + ty)/Iyy; 
+     ((Ixx-Iyy)*p*q + tz)/Izz]; 
+ 
  %   fwx,    fwy,    fwz,    twx,    twy,    twz
-Dd = [0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      1/m      0       0       0       0       0;
-      0        1/m     0       0       0       0;
-      0        0       1/m     0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       1/Ixx   0       0;
-      0        0       0       0         1/Iyy   0;
-      0        0       0       0       0       1/Izz];
-%}  
 Dd = [0        0       0       0       0       0;
       0        0       0       0       0       0;
       0        0       0       0       0       0;

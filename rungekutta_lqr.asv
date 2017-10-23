@@ -33,8 +33,7 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Eth_data(:,t) = Eth;
     Epsi_data(:,t) = Epsi;
     % ------------------------- For Plant ---------------------------%
-    Vw = setDisturbance(flagSine, Vx, Au, Av, Aw, Bu, Bv, Bw, t, dt, freq, Amp);
-
+.
     % get Values from the Raw Sensor
     % Left Blank
     %

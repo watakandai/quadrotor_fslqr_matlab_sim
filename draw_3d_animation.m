@@ -1,13 +1,15 @@
-function success = draw_3d_animation(T, X_data, Xlqr_data, l)
+function success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit)
 %%  3D
-%{%
-% vidObj = VideoWriter(sprintf('Motion_f=%i.avi', freq));
-% open(vidObj)
-
+slow = false;
+record = false;
+if record==true
+    vidObj = VideoWriter(sprintf('Motion_f=%i.avi', freq));
+    open(vidObj)
+end
 
 figure
 set(gcf, 'Name', '3D Position');
-az = -60.5; el = 45;
+az = -100.5; el = 30;
 legend('expd','lqr'); 
 x_min=min([X_data(1,:) Xlqr_data(1,:)])-2*l;
 x_max=max([X_data(1,:) Xlqr_data(1,:)])+2*l;
@@ -29,7 +31,14 @@ for t=1:length(T)-1
     th_lqr = Xlqr_data(8,t);
     psi_lqr = Xlqr_data(9,t);    
     plot3(X_data(1,1:t),X_data(2,1:t),X_data(3,1:t),':g', Xlqr_data(1,1:t), Xlqr_data(2,1:t), Xlqr_data(3,1:t),':m'); grid on; 
-    xlim([x_min x_max]); ylim([y_min y_max]); zlim([z_min z_max]);
+    if slow==true
+        xlim([-2 2]); ylim([-2 2]); zlim([-2 2]);
+    else
+        xlim([x_min x_max]); ylim([y_min y_max]); zlim([z_min z_max]);
+    end
+    if limit==true
+        xlim([-1 1]); ylim([-1 1]); zlim([-1 1]);
+    end
     line([x_lqr+l*cos(th_lqr)*cos(psi_lqr) x_lqr-l*cos(th_lqr)*cos(psi_lqr)], [y_lqr+l*(sin(phi_lqr)*sin(th_lqr)*cos(psi_lqr)-cos(phi_lqr)*sin(psi_lqr)) y_lqr-l*(sin(phi_lqr)*sin(th_lqr)*cos(psi_lqr)-cos(phi_lqr)*sin(psi_lqr))], [z_lqr+l*(cos(phi_lqr)*sin(th_lqr)*cos(psi_lqr)+sin(phi_lqr)*sin(psi_lqr)) z_lqr-l*(cos(phi_lqr)*sin(th_lqr)*cos(psi_lqr)+sin(phi_lqr)*sin(psi_lqr))]);
     line([x_lqr+l*cos(th_lqr)*sin(psi_lqr) x_lqr-l*cos(th_lqr)*sin(psi_lqr)], [y_lqr+l*(sin(phi_lqr)*sin(th_lqr)*sin(psi_lqr)+cos(phi_lqr)*cos(psi_lqr)) y_lqr-l*(sin(phi_lqr)*sin(th_lqr)*sin(psi_lqr)+cos(phi_lqr)*cos(psi_lqr))], [z_lqr+l*(cos(phi_lqr)*sin(th_lqr)*sin(psi_lqr)-sin(phi_lqr)*cos(psi_lqr)) z_lqr-l*(cos(phi_lqr)*sin(th_lqr)*sin(psi_lqr)-sin(phi_lqr)*cos(psi_lqr))]);
     line([x+l*cos(th)*cos(psi) x-l*cos(th)*cos(psi)], [y+l*(sin(phi)*sin(th)*cos(psi)-cos(phi)*sin(psi)) y-l*(sin(phi)*sin(th)*cos(psi)-cos(phi)*sin(psi))], [z+l*(cos(phi)*sin(th)*cos(psi)+sin(phi)*sin(psi)) z-l*(cos(phi)*sin(th)*cos(psi)+sin(phi)*sin(psi))]);
@@ -38,11 +47,17 @@ for t=1:length(T)-1
     xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
     title(sprintf('%0.1f/%i [s]',t*dt,t_end));
     drawnow;
+    if slow==true
+        pause(0.2);
+    end
 
-%     currFrame = getframe(gcf);
-%     writeVideo( vidObj, currFrame );
+    if record==true
+        currFrame = getframe(gcf);
+        writeVideo( vidObj, currFrame );
+    end
 end
 
-% close( vidObj );
-%}
+if record==true
+    close( vidObj );
+end
 success = true;
