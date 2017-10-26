@@ -1,6 +1,6 @@
 function [K, G, FF, FFini] = getLQRGainServo(A, B, Ae, Be, Ce)
 Re = eye(size(B,2));
-Qe = diag([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+Qe = diag([100, 100, 100, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 11, 1]);
 Pe = care(Ae, Be, Qe, Re);
 
 P11=Pe(1:12,1:12);

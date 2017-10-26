@@ -1,3 +1,4 @@
+function success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input)
 %% Figure Input
 figure
 set(gcf, 'Name', 'Input LQR');
@@ -14,3 +15,5 @@ for i=1:numSubplot
     xlabel(XLabels(1)); ylabel(YLabels_input(i));grid on;
     legend('Frequency-Shaped LQR','LQR')
 end
+
+success = true;

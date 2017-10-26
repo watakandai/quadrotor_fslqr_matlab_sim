@@ -38,15 +38,15 @@ DEBUG = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 30;
+t_end = 10;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
 X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
-U0 = [0 0 0 0]';
+U0 = [m*g 0 0 0]';
 
 % Reference States
-Xref = [1 1 1 0]';  % x, y, z, psi
+Xref = [0 0 0 0]';  % x, y, z, psi
 % Xref = [0 0 0 0 0 0 0 0 0 0 0 0]';
 % Freq.
 W=logspace(-2,3,100);
@@ -61,7 +61,7 @@ Ce = [1 0 0 0 0 0 0 0 0 0 0 0;
       0 0 0 0 0 0 0 0 1 0 0 0];
 Ae = [A zeros(size(A,1),size(Ce,1)); -Ce zeros(size(Ce,1),size(Ce,1))];
 Be = [B; zeros(size(Ce,1),size(B,2))];
-[controllability, observability] = checkContObser(A,B,C);
+% [controllability, observability] = checkContObser(A,B,C);
 
 if DEBUG==true
     disp(controllability);
@@ -88,7 +88,7 @@ K_lqr = getLQRGain(A, B);
 %%
 Amp = Vwind;
 freq = 1;
-flagSine=111; % 111 is Sine, 1 is just one wave
+flagSine=1; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
 rungekutta_lqr
@@ -104,7 +104,7 @@ end
 limit = false;
 
 % f, tx, ty, tz
-% draw_input
+success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input);
 % phi, th, psi, p, q, r
 success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
 % x, y, z, u, v, w,

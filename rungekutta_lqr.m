@@ -13,9 +13,12 @@ Ex=0; Ey=0; Ez=0;
 Ephi_data=zeros(1, length(T_data));
 Eth_data=zeros(1, length(T_data));
 Epsi_data=zeros(1, length(T_data));
-Ephi=0; Eth=0; Epsi=0; Ee=0;
+Ephi=0; Eth=0; Epsi=0; 
+Ee=zeros(size(Xref,1),1);
+Ee0=zeros(size(Xref,1),1);
 Xz=[0; 0; 0]; 
 Ualt_virt=0;
+Ee_data=zeros(size(Xref,1),length(T_data));
 
 Vx = zeros(length(Au)+length(Av)+length(Aw), 1);
 Vw = zeros(3,1);
@@ -32,6 +35,8 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Ephi_data(:,t) = Ephi;
     Eth_data(:,t) = Eth;
     Epsi_data(:,t) = Epsi;
+    Ee_data(:,t) = Ee;Ee0=zeros(size(Xref,1),1);
+
     % ------------------------- For Plant ---------------------------%
     Vw = setDisturbance(flagSine, Vx, Au, Av, Aw, Bu, Bv, Bw, t, dt, freq, Amp);
 
@@ -42,23 +47,28 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     phi=X(7);
     th=X(8);
     psi=X(9);
-    
+
     % Process the data with the Oberserver
     % Left Blank
     %+
     
     %
+   
+    %------------- Full State Linear FeedBack
+    %{
     Ee = Ee + (Xref-Ce*X)*dt;
-    U = Ke*X + Ge*Ee + FFe*Xref + FFinie*X0;
+%     U = Ke*X + Ge*Ee + FFe*Xref + FFinie*X0;
     Xerr = [X(1)-Xref(1);
             X(2)-Xref(2);
             X(3)-Xref(3);
             X(4); X(5); X(6); X(7); X(8); 
             X(9)-Xref(4); 
             X(10); X(11); X(12)];
-%     U = -K_lqr*Xerr + [m*g; 0; 0; 0];
+    U = -K_lqr*Xerr + [m*g; 0; 0; 0];
+    %}
     
-    %{
+    %-------------- Cascaded System FeedBack
+    %{%
     % Altitude Controller
     % Determine The Altitude Input
 %     dXz1 = getdX(Xz, [Ualt_virt; Xref(3)], Aerror, Bz)*dt;
@@ -67,10 +77,10 @@ for t=1:(length(T))     % t=0 ~ t=t_end
 %     dXz4 = getdX(Xz+dXz3, [Ualt_virt; Xref(3)], Aerror, Bz)*dt;  
 %     Xz = Xz+(dXz1+2*dXz2+2*dXz3+dXz4)/6;
 %     Ualt_virt = -Kz*Xz;                %=> Error State Need to be Integrated
-%     Ualt = m*(Ualt_virt+g)/(cos(phi)*cos(psi));
+%     Ualt = m/(cos(phi)*cos(psi)) * (g+Ualt_virt);
     Ez = Ez + (Xref(3)-X(3))*dt;
     Ualt_virt = Kz*[X(3);X(6)] + Gz*Ez + FFz*Xref(3) + FFinitz*[X0(3);X0(6)];
-    Ualt = m*(Ualt_virt+g);
+    Ualt = m*(g+Ualt_virt);
     
     % Position Controller
         % Determine the Position Input -> Phi_ref & Theta_ref
@@ -82,9 +92,9 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Uy = Kxy*[X(2);X(5)] + Gxy*Ey + FFxy*Xref(2) + FFinitxy*[X0(2);X0(5)];
 
     % Calc Phi_ref, Theta_ref
-    phi_ref = -Uy/10;
-    th_ref = Ux/10;
-    phi_deg = phi_ref*180/pi
+    phi_ref = -Uy;
+    th_ref = Ux;
+    phi_deg = phi_ref*180/pi;
     th_deg = th_ref*180/pi;
 %     phi_ref = asin((cos(phi)*sin(th)*sin(psi)-Uy)/cos(psi));
 %     th_ref = asin((Ux-sin(phi)*sin(psi))/(cos(phi)*cos(psi)));
