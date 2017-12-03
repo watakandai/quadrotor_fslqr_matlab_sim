@@ -1,7 +1,7 @@
 function success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit)
 %%  3D
 slow = false;
-record = true;
+record = false;
 camera_turn=false;
 if record==true
 %     vidObj = VideoWriter(sprintf('Motion_f=%i.avi', freq));
@@ -11,7 +11,7 @@ end
 
 figure
 set(gcf, 'Name', '3D Position');
-az = 170; el = 30;
+az = 75; el = 45;
 legend('expd','lqr'); 
 same_xy_lim = true;
 if same_xy_lim == true
@@ -27,7 +27,10 @@ else
 end
 z_min=min([X_data(3,:) Xlqr_data(3,:)])-2*l;
 z_max=max([X_data(3,:) Xlqr_data(3,:)])+2*l;
-for t=1:length(T)-1
+
+fastforward=3;
+for i=1:length(T)/fastforward
+    t=fastforward*i;
     x = X_data(1,t);
     y = X_data(2,t);
     z = X_data(3,t); 
@@ -54,15 +57,23 @@ for t=1:length(T)-1
     linex_lqr = R_lqr*[1; 0; 0];
     liney_lqr = R_lqr*[0; 1; 0];
     line([x_lqr+l*linex_lqr(1) x_lqr-l*linex_lqr(1)], [y_lqr+l*linex_lqr(2) y_lqr-l*linex_lqr(2)], [z_lqr+l*linex_lqr(3) z_lqr-l*linex_lqr(3)], 'Color', 'red');
-    line([x_lqr+l*liney_lqr(1) x_lqr-l*liney_lqr(1)], [y_lqr+l*liney_lqr(2) y_lqr-l*liney_lqr(2)], [z_lqr+l*liney_lqr(3) z_lqr-l*liney_lqr(3)]);
+    line([x_lqr+l*liney_lqr(1) x_lqr-l*liney_lqr(1)], [y_lqr+l*liney_lqr(2) y_lqr-l*liney_lqr(2)], [z_lqr+l*liney_lqr(3) z_lqr-l*liney_lqr(3)], 'Color', 'red');
     ar1_lqr = [x_lqr; y_lqr; z_lqr];
     ar2_lqr = [x_lqr; y_lqr; z_lqr] + l*R_lqr*[0; 0; 5];
-    arrow(ar1_lqr, ar2_lqr);
+    arrow(ar1_lqr, ar2_lqr, 'Length', 8);
     R = getRotationalMatrix(phi, th, psi);
     linex = R*[1; 0; 0];
     liney = R*[0; 1; 0];
-%     line([x+l*linex(1) x-l*linex(1)], [y+l*linex(2) y-l*linex(2)], [z+l*linex(3) z-l*linex(3)], 'Color', 'green');
-%     line([x+l*liney(1) x-l*liney(1)], [y+l*liney(2) y-l*liney(2)], [z+l*liney(3) z-l*liney(3)], 'Color', 'green');
+    line([x+l*linex(1) x-l*linex(1)], [y+l*linex(2) y-l*linex(2)], [z+l*linex(3) z-l*linex(3)], 'Color', 'green');
+    line([x+l*liney(1) x-l*liney(1)], [y+l*liney(2) y-l*liney(2)], [z+l*liney(3) z-l*liney(3)], 'Color', 'green');
+    ar1 = [x; y; z];
+    ar2 = [x; y; z] + l*R*[0; 0; 5];
+    arrow(ar1, ar2, 'Length', 8);
+    
+    arrow([0 0 0], [0.2 0 0], 'Length', 8); text(0.3,0,0,'\itx', 'FontSize',10);
+    arrow([0 0 0], [0 0.2 0], 'Length', 8); text(0,0.3,0,'\ity', 'FontSize',10);
+    arrow([0 0 0], [0 0 0.2], 'Length', 8); text(0,0,0.3,'\itz', 'FontSize',10);
+
     
     if(camera_turn==true) 
         if(az>360)
@@ -72,6 +83,7 @@ for t=1:length(T)-1
     end
     view(az, el);
     xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
+%     legend('LQR','Proposed', 'Location','northeast','Orientation','horizontal');
     title(sprintf('%0.1f/%i[s], CameraAngle: %i[deg]',t*dt,t_end, az));
     drawnow;
     if slow==true

@@ -23,7 +23,7 @@ for t=1:(length(T))     % t=0 ~ t=t_end
 
     % ------------------------- For Plant ---------------------------%
     % Sign Disturbance 
-    Vw = setDisturbance(flagSine, Vx, Au, Av, Aw, Bu, Bv, Bw, t, dt, freq, Amp);
+    [Vw, Vx] = setDisturbance(flagWind, Vx, Au, Av, Aw, Bu, Bv, Bw, Cwind, t, dt, freq, Amp, wind_stop_time);
     
     % NonlinearDynamics (Equation of Motion)
     dX1 = getNonlineardX_earth(X, U, Vw)*dt;
