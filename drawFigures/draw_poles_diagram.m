@@ -1,6 +1,0 @@
-figure('Position',[1921 97 1280 907])
-pzmap(systems)
-figure('Position',[1921 97 1280 907])
-pzmap(systems_lqr)
-figure('Position',[1921 97 1280 907])
-pzmap(systems_hinf)

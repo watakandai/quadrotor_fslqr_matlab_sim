@@ -1,3 +1,4 @@
+function [A, B, C, D] = setStateSpace(m, g, Ixx, Iyy, Izz)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Reference:  Quadrotor control: modeling, nonlinearcontrol design, and simulation
 %               by FRANCESCO SABATINO
@@ -10,12 +11,16 @@
 %               y = output;         % Leave it for now. Depends on sensors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% States
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                             Quadrotor SS                               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    x,  y,  z,  u,  v,  w, phi, th, psi, p, q,  r;
+%{%
 A = [0   0   0   1   0   0   0   0   0   0   0   0;
      0   0   0   0   1   0   0   0   0   0   0   0;
      0   0   0   0   0   1   0   0   0   0   0   0;
-     0   0   0   0   0   0   0   -g  0   0   0   0;
-     0   0   0   0   0   0   g   0   0   0   0   0;
+     0   0   0   0   0   0   0   g   0   0   0   0;
+     0   0   0   0   0   0   -g  0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   1   0   0;
      0   0   0   0   0   0   0   0   0   0   1   0;
@@ -23,80 +28,24 @@ A = [0   0   0   1   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0;
      0   0   0   0   0   0   0   0   0   0   0   0];
+
 %    f     tx      ty      tz
 B = [0     0       0       0;
      0     0       0       0;
      0     0       0       0;
      0     0       0       0;
      0     0       0       0;
-     -1/m  0       0       0;
+     1/m   0       0       0;
      0     0       0       0;
      0     0       0       0;
      0     0       0       0;
      0     1/Ixx   0       0;
      0     0       1/Iyy   0;
      0     0       0       1/Izz];
+%}
+
 C = eye(12); 
-D = 0.001*ones(size(C,1), size(B,2));
-% D = zeros(size(C,1), size(B,2));
+D = zeros(size(C,1), size(B,2));
 
-% Disturbances (This matrix will be needed for Hinfinity Controller)
-%   fwx,    fwy,    fwz,    twx,    twy,    twz
-Dd = [0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      1/m      0       0       0       0       0;
-      0        1/m     0       0       0       0;
-      0        0       1/m     0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       0       0       0;
-      0        0       0       1/Ixx   0       0;
-      0        0       0       0       1/Iyy   0;
-      0        0       0       0       0       1/Izz];
-% this all should be 1. as disturbances applied will be the dryden wind
-% model
-% https://jp.mathworks.com/help/aeroblks/drydenwindturbulencemodeldiscrete.html
-% a lot to think of
-  
-B = [Dd B]; D=[0.001*ones(size(Dd,1),size(Dd,2)) D];
-% B = [Dd B]; D=[zeros(size(Dd,1),size(Dd,2)) D]
-P = pck(A,B,C,D);
-w=logspace(0,2,100);
-% Bode Diagram of Plant P
-figure
-Pss = ss(A,B,C,D);
-for i=1:size(B,2)
-    for j=1:size(A,1)
-%         bode(Pss(j,i),w); 
-        hold on
-    end
-end
 
-% poles and pole diagram of Plant P
-figure
-pzmap(Pss);
-% Transfer Function of P (from 4inputs to 12 outputs)
-tf(Pss)
-%% Checking for Controllability & Observability
-co=ctrb(A,B);
-if rank(co)==size(A)
-   disp('This system is controllable.')
-else
-   if rank(co)==0
-      disp('This system is uncontrollable.')
-   else
-      disp('This system is stabilizable.')
-   end
-end
-obs=obsv(A,C);
-if rank(obs)==size(A)
-   disp('This system is observable.')
-else
-   if rank(obs)==0
-      disp('This system is unobservable.')
-   else
-      disp('This system is detectable.')
-   end
-end
 

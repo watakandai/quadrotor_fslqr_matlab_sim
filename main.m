@@ -23,53 +23,106 @@ setLabels
 %                               Parameters                               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Physical Parameters of Quadrotor 
-setParameters
-% State Space A,B,C,D
-% setStateSpace
-setStateSpace_lqr
+m = 0.650;
+Ixx = 7.5*10^(-3);
+Iyy = 7.5*10^(-3);
+Izz = 1.3*10^(-2);
+g=9.81; 
+rho = 1.225;
+l = 0.23;
+
+% Debug Mode?
+DEBUG = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Initial States & Reference States                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 30;
+t_end = 10;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
 X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
-U0 = [0 0 0 0]';
+U0 = [m*g 0 0 0]';
 
 % Reference States
 Xref = [0 0 0 0]';  % x, y, z, psi
+% Xref = [0 0 0 0 0 0 0 0 0 0 0 0]';
+% Freq.
+W=logspace(-2,3,100);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% State Space A,B,C,D
+[A, B, C, D] = setStateSpace(m, g, Ixx, Iyy, Izz);
+Ce = [1 0 0 0 0 0 0 0 0 0 0 0;
+      0 1 0 0 0 0 0 0 0 0 0 0
+      0 0 1 0 0 0 0 0 0 0 0 0
+      0 0 0 0 0 0 0 0 1 0 0 0];
+Ae = [A zeros(size(A,1),size(Ce,1)); -Ce zeros(size(Ce,1),size(Ce,1))];
+Be = [B; zeros(size(Ce,1),size(B,2))];
+% [controllability, observability] = checkContObser(A,B,C);
+
+if DEBUG==true
+    disp(controllability);
+    disp(observability);
+end
+%{
+
+[Aerror, Cerror, Bxy, Bz, Bphi, Bth, Bpsi] = setCascadedStateSpace(m, g, Ixx, Iyy, Izz);
+[Kxy, Gxy, FFxy, FFinitxy, Kz, Gz, FFz, FFinitz, Kphi, Gphi, FFphi, FFinitphi, Kpsi, Gpsi, FFpsi, FFinitpsi] = getCascadedLQRGain(Aerror, Bxy, Bz, Bphi, Bpsi);
+Aerr = Aerror(1:2,1:2);
+zero22 = zeros(2,2);
+zero21 = zeros(2,1);
+Axyz = [Aerr zero22 zero22;
+        zero22 Aerr zero22;
+        zero22 zero22 Aerr];
+Bxyz = [Bxy(1:2) zero21 zero21;
+        zero21 Bxy(1:2) zero21;
+        zero21 zero21 Bz(1:2)];
+Bz = [Bz [0; 0; 1]];
+%}
+
+% Dryden Wind Model State Space
+Vwind=6;
+[Au, Bu, Cu, Du, Av, Bv, Cv, Dv, Aw, Bw, Cw, Dw, Cwind] = setDrydenStateSpace(Vwind);
 % setWeight for desired output and input
-setWeights
+[Aq,Bq,Cq,Dq, Ar,Br,Cr,Dr] = setFreqShapedWeights(W, DEBUG);
 % setWeightsNew
 
 % Calculate Control Gain K
-getLQRGain;
+[Ak, Bk, Ck, Dk] = getFreqShapedLQRGain(A, B, Aq, Bq, Cq, Dq, Ar, Br, Cr, Dr);
+% K_lqr = getLQRGain(A, B);
+[Ke, Ge, FFe, FFinie] = getLQRGainServo(A, B, Ae, Be, Ce);
 % getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
 Amp = Vwind;
 freq = 1;
-flagSine=3; % 111 is Sine, 1 is just one wave
+flagSine=1; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
-rungekutta_explqr
+rungekutta_lqr
+lqr_off = false;
+if lqr_off==true
+    X_data = zeros(size(X_data));
+    U_data = zeros(size(U_data));
+end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+limit = 0;
+
 % f, tx, ty, tz
-% draw_input
+success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input, limit);
 % phi, th, psi, p, q, r
-draw_rotational_motion
+success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
 % x, y, z, u, v, w,
-draw_translational_motion
+success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
+success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit);
+draw_fft(T, dt, X_data, Xlqr_data);
 %%
 % OpenLoop Analysis (LQR)
 %{
