@@ -3,7 +3,7 @@ function [Kxy, Gxy, FFxy, FFinitxy, Kz, Gz, FFz, FFinitz, Kphi, Gphi, FFphi, FFi
 
 %% Z
 R = 1;
-Q = diag([1, 1, 1]);
+Q = diag([10, 1, 1]);
 Pe = care(Aerror, Bxy, Q, R);
 P11=Pe(1:2,1:2);
 P12=Pe(1:2,3);
@@ -18,7 +18,7 @@ FFinitxy = -Gxy*inv(P22)*P12';
 % Ky = Kx;
 
 %% XY
-R = 1;
+R = 100;
 Q = diag([1, 1, 1]);
 Pe = care(Aerror, Bz, Q, R);
 P11=Pe(1:2,1:2);

@@ -67,9 +67,21 @@ if DEBUG==true
     disp(controllability);
     disp(observability);
 end
+%{
+
 [Aerror, Cerror, Bxy, Bz, Bphi, Bth, Bpsi] = setCascadedStateSpace(m, g, Ixx, Iyy, Izz);
 [Kxy, Gxy, FFxy, FFinitxy, Kz, Gz, FFz, FFinitz, Kphi, Gphi, FFphi, FFinitphi, Kpsi, Gpsi, FFpsi, FFinitpsi] = getCascadedLQRGain(Aerror, Bxy, Bz, Bphi, Bpsi);
+Aerr = Aerror(1:2,1:2);
+zero22 = zeros(2,2);
+zero21 = zeros(2,1);
+Axyz = [Aerr zero22 zero22;
+        zero22 Aerr zero22;
+        zero22 zero22 Aerr];
+Bxyz = [Bxy(1:2) zero21 zero21;
+        zero21 Bxy(1:2) zero21;
+        zero21 zero21 Bz(1:2)];
 Bz = [Bz [0; 0; 1]];
+%}
 
 % Dryden Wind Model State Space
 Vwind=6;
@@ -80,7 +92,7 @@ Vwind=6;
 
 % Calculate Control Gain K
 [Ak, Bk, Ck, Dk] = getFreqShapedLQRGain(A, B, Aq, Bq, Cq, Dq, Ar, Br, Cr, Dr);
-K_lqr = getLQRGain(A, B);
+% K_lqr = getLQRGain(A, B);
 [Ke, Ge, FFe, FFinie] = getLQRGainServo(A, B, Ae, Be, Ce);
 % getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
@@ -92,7 +104,7 @@ flagSine=1; % 111 is Sine, 1 is just one wave
 % rungekutta simulation
 rungekutta
 rungekutta_lqr
-lqr_off = true;
+lqr_off = false;
 if lqr_off==true
     X_data = zeros(size(X_data));
     U_data = zeros(size(U_data));
@@ -101,16 +113,16 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-limit = false;
+limit = 0;
 
 % f, tx, ty, tz
-success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input);
+success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input, limit);
 % phi, th, psi, p, q, r
 success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
 % x, y, z, u, v, w,
 success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
 success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit);
-% draw_fft
+draw_fft(T, dt, X_data, Xlqr_data);
 %%
 % OpenLoop Analysis (LQR)
 %{

@@ -12,8 +12,8 @@ for i=7:12
         plot(T, Xlqr_data(i,:)*180/pi(), T,  X_data(i,:)*180/pi());
     xlabel(XLabels(1)); ylabel(YLabels(i));grid on;
     legend('LQR','Frequency-Shaped LQR')
-    if limit==true
-        ylim([-1 1]);
+    if limit~=0
+        ylim([-limit limit]);
     end
 end
 success = true;

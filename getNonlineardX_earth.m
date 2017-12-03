@@ -12,7 +12,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % NonLinear Model
-function dX = getNonlineardX_body(X, U, Vw)
+function dX = getNonlineardX_earth(X, U, Vw)
 % Physical Parameters of Quadrotor
 setParameters
 

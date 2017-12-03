@@ -1,4 +1,4 @@
-function success = draw_fft(T, X_data, Xlqr_data)
+function success = draw_fft(T,dt, X_data, Xlqr_data)
 %% FFT
 
 n = 2^nextpow2(length(T));

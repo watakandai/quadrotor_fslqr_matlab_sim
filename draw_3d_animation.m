@@ -1,10 +1,11 @@
 function success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit)
 %%  3D
 slow = false;
-record = false;
-camera_turn=true;
+record = true;
+camera_turn=false;
 if record==true
-    vidObj = VideoWriter(sprintf('Motion_f=%i.avi', freq));
+%     vidObj = VideoWriter(sprintf('Motion_f=%i.avi', freq));
+    vidObj = VideoWriter('Servo');
     open(vidObj)
 end
 
@@ -46,19 +47,23 @@ for t=1:length(T)-1
     else
         xlim([x_min x_max]); ylim([y_min y_max]); zlim([z_min z_max]);
     end
-    if limit==true
-        xlim([-1 1]); ylim([-1 1]); zlim([-1 1]);
+    if limit~=0
+        xlim([-limit limit]); ylim([-limit limit]); zlim([-limit limit]);
     end
     R_lqr = getRotationalMatrix(phi_lqr, th_lqr, psi_lqr);
     linex_lqr = R_lqr*[1; 0; 0];
     liney_lqr = R_lqr*[0; 1; 0];
     line([x_lqr+l*linex_lqr(1) x_lqr-l*linex_lqr(1)], [y_lqr+l*linex_lqr(2) y_lqr-l*linex_lqr(2)], [z_lqr+l*linex_lqr(3) z_lqr-l*linex_lqr(3)], 'Color', 'red');
     line([x_lqr+l*liney_lqr(1) x_lqr-l*liney_lqr(1)], [y_lqr+l*liney_lqr(2) y_lqr-l*liney_lqr(2)], [z_lqr+l*liney_lqr(3) z_lqr-l*liney_lqr(3)]);
+    ar1_lqr = [x_lqr; y_lqr; z_lqr];
+    ar2_lqr = [x_lqr; y_lqr; z_lqr] + l*R_lqr*[0; 0; 5];
+    arrow(ar1_lqr, ar2_lqr);
     R = getRotationalMatrix(phi, th, psi);
     linex = R*[1; 0; 0];
     liney = R*[0; 1; 0];
-    line([x+l*linex(1) x-l*linex(1)], [y+l*linex(2) y-l*linex(2)], [z+l*linex(3) z-l*linex(3)], 'Color', 'green');
-    line([x+l*liney(1) x-l*liney(1)], [y+l*liney(2) y-l*liney(2)], [z+l*liney(3) z-l*liney(3)], 'Color', 'green');
+%     line([x+l*linex(1) x-l*linex(1)], [y+l*linex(2) y-l*linex(2)], [z+l*linex(3) z-l*linex(3)], 'Color', 'green');
+%     line([x+l*liney(1) x-l*liney(1)], [y+l*liney(2) y-l*liney(2)], [z+l*liney(3) z-l*liney(3)], 'Color', 'green');
+    
     if(camera_turn==true) 
         if(az>360)
             az=0;
