@@ -26,7 +26,6 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     T_data(:,t)  = t*dt;                        % time  t
     Xlqr_data(:,t)  = X;                         % state x
     Ulqr_data(:,t) = U;                            % input u
-    Vwlqr_data(:,t) = Vw ;
     PhiRefLqr_data(:,t) = phi_ref;
     ThRefLqr_data(:,t) = th_ref;
     Ephi_data(:,t) = Ephi;
@@ -34,20 +33,21 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Epsi_data(:,t) = Epsi;
     Ee_data(:,t) = Ee;
     
-
+    Vw = Vw_data(:,t);
     % ------------------------- For Plant ---------------------------%
-    Vw = setDisturbance(flagSine, Vx, Au, Av, Aw, Bu, Bv, Bw, t, dt, freq, Amp);
+%     [Vw, Vx] = setDisturbance(flagWind, Vx, Au, Av, Aw, Bu, Bv, Bw, Cwind, t, dt, freq, Amp, wind_stop_time);
   
     %------------- Full State Linear FeedBack
     %{%
     Ee = Ee + (Xref-Ce*X)*dt;
-    U = Ke*X + Ge*Ee + FFe*Xref + FFinie*X0 + [m*g;0;0;0];
+%     U = Ke*X + Ge*Ee + FFe*Xref + FFinie*X0 + [m*g;0;0;0];
+    U = Ke*X + [m*g;0;0;0];
     Xerr = [X(1)-Xref(1);
             X(2)-Xref(2);
             X(3)-Xref(3);
             X(4); X(5); X(6); X(7); X(8); 
             X(9)-Xref(4); 
-            X(10); X(11); X(12)];
+            X(11); X(11); X(12)];
 %     U = -K_lqr*Xerr + [m*g; 0; 0; 0];
     %}
     

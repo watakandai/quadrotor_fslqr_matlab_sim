@@ -19,6 +19,7 @@ clc
 % close all
 setFormats
 setLabels
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Parameters                               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,29 +28,39 @@ m = 0.650;
 Ixx = 7.5*10^(-3);
 Iyy = 7.5*10^(-3);
 Izz = 1.3*10^(-2);
+
+m=1.37;
+Ixx = 0.0219;
+Iyy = 0.0109;
+Izz = 0.0306;
 g=9.81; 
 rho = 1.225;
 l = 0.23;
+global meter2feet feet2meter
+meter2feet = 3.28084;
+feet2meter = 1/meter2feet;
 
-% Debug Mode?
-DEBUG = false;
+
+%%% Debug Mode
+% true  == show figures, controllability and etc....
+DEBUG = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Initial States & Reference States                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 10;
+t_end = 20;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
 X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
 U0 = [m*g 0 0 0]';
-
+    
 % Reference States
 Xref = [0 0 0 0]';  % x, y, z, psi
 % Xref = [0 0 0 0 0 0 0 0 0 0 0 0]';
 % Freq.
-W=logspace(-2,3,100);
+W=logspace(-4,3,100);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,9 +72,9 @@ Ce = [1 0 0 0 0 0 0 0 0 0 0 0;
       0 0 0 0 0 0 0 0 1 0 0 0];
 Ae = [A zeros(size(A,1),size(Ce,1)); -Ce zeros(size(Ce,1),size(Ce,1))];
 Be = [B; zeros(size(Ce,1),size(B,2))];
-% [controllability, observability] = checkContObser(A,B,C);
 
 if DEBUG==true
+    [controllability, observability] = checkContObser(A,B,C);
     disp(controllability);
     disp(observability);
 end
@@ -86,43 +97,76 @@ Bz = [Bz [0; 0; 1]];
 % Dryden Wind Model State Space
 Vwind=6;
 [Au, Bu, Cu, Du, Av, Bv, Cv, Dv, Aw, Bw, Cw, Dw, Cwind] = setDrydenStateSpace(Vwind);
+setPosition=false;
 % setWeight for desired output and input
-[Aq,Bq,Cq,Dq, Ar,Br,Cr,Dr] = setFreqShapedWeights(W, DEBUG);
+[Aq,Bq,Cq,Dq, Ar,Br,Cr,Dr] = setFreqShapedWeights(W, DEBUG, setPosition);
 % setWeightsNew
 
 % Calculate Control Gain K
 [Ak, Bk, Ck, Dk] = getFreqShapedLQRGain(A, B, Aq, Bq, Cq, Dq, Ar, Br, Cr, Dr);
 % K_lqr = getLQRGain(A, B);
-[Ke, Ge, FFe, FFinie] = getLQRGainServo(A, B, Ae, Be, Ce);
+[Ke, Ge, FFe, FFinie] = getLQRGainServo(A, B, Ae, Be, Ce, setPosition);
 % getHinfGain
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                Wind Flag                               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Amp = Vwind;
-freq = 1;
-flagSine=1; % 111 is Sine, 1 is just one wave
+freq = 0.5;
+%%% Wind Flag
+% 111   == Continous Sine Wave
+% 1     == 1 Sine Wave
+% 3     == Dryden Wind
+flagWind=111;
+%%% Wind Stop Time
+% 0     == Wind Does not Stop
+% >0    == Time at Wind Stops
+wind_stop_time = 5;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                              Rungekutta                                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % rungekutta simulation
 rungekutta
 rungekutta_lqr
+% Set 0 Just for visualization when the other controller diverges (== Hassann) 
+mycontroller_off = false;
 lqr_off = false;
-if lqr_off==true
+if mycontroller_off==true
     X_data = zeros(size(X_data));
     U_data = zeros(size(U_data));
 end
+if lqr_off == true
+    Xlqr_data = zeros(size(Xlqr_data));
+    Ulqr_data = zeros(size(Ulqr_data));
+end
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% limit for axis range
+% 0     == no limit
+% >0    == limit in figure
 limit = 0;
-
+legendPos = [0.1148 0.9208 0.4571 0.0440];
+% h = get(gcf, 'Children')
+% set(h(3), 'Position', [0.1148 0.9265 0.8127 0.0709])
+% set(hd, 'Position', [0.1148 0.9265 0.8127 0.0709])
+% legendPos = 'north';
+% originalOrange = [0.85 0.325 0.098]
+% originalBlue = [0.0 0.447 0.741]
 % f, tx, ty, tz
-success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input, limit);
+success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input, limit, legendPos);
 % phi, th, psi, p, q, r
-success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
+hd = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit, legendPos);
 % x, y, z, u, v, w,
-success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
-success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit);
-draw_fft(T, dt, X_data, Xlqr_data);
+hd = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit, legendPos);
+hd3 = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit, legendPos);
+[f, Px, Pxlqr, h] = draw_fft(T, dt, T_data, X_data, Xlqr_data, Vw_data, legendPos, XLabels, YLabels); 
+
+
 %%
 % OpenLoop Analysis (LQR)
 %{

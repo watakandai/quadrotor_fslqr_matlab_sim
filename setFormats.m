@@ -1,15 +1,15 @@
-% % GUI Font
-% set(0, 'defaultUicontrolFontName', 'Times New Roman');
-% % Axes Font
-% set(0, 'defaultAxesFontName','Times New Roman');
-% % Title Font
-% set(0, 'defaultTextFontName','Times New Roman');
+% GUI Font
+set(0, 'defaultUicontrolFontName', 'Times New Roman');
+% Axes Font
+set(0, 'defaultAxesFontName','Times New Roman');
+% Title Font
+set(0, 'defaultTextFontName','Times New Roman');
 % GUI Font size
-set(0, 'defaultUicontrolFontSize', 18);
+set(0, 'defaultUicontrolFontSize', 9);
 % Axes Font Size
-set(0, 'defaultAxesFontSize', 18);
+set(0, 'defaultAxesFontSize', 9);
 % Title Font Size
-set(0, 'defaultTextFontSize', 18);
+set(0, 'defaultTextFontSize', 9);
 % Axes Font Weight
 set(0,'DefaultAxesTitleFontWeight','normal');
 % Axes Font Weight
@@ -20,6 +20,8 @@ set(0,'DefaultTextFontWeight','bold');
 set(0,'defaultlinelinewidth',2)
 % Set Background Color
 set(0, 'defaultFigureColor', 'white');
+% Set Legend Font Size
+set(0, 'DefaultLegendFontSize', 9);
 
 % width height = 600 500
 % size of figure

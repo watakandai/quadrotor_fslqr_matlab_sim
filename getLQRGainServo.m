@@ -1,6 +1,11 @@
-function [K, G, FF, FFini] = getLQRGainServo(A, B, Ae, Be, Ce)
+function [K, G, FF, FFini] = getLQRGainServo(A, B, Ae, Be, Ce, setPosition)
 Re = eye(size(B,2));
-Qe = diag([10, 10, 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+if setPosition==true
+    Qe = diag([10, 10, 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+else
+    Qe = diag([1, 1, 1, 10, 10, 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+end
+
 Pe = care(Ae, Be, Qe, Re);
 
 P11=Pe(1:12,1:12);
