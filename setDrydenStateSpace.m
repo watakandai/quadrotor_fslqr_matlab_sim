@@ -11,9 +11,9 @@ global meter2feet
 height = 20;    % in [ft] (= 6m)
 
 % Scale Lengths @ 20ft According to MIL-F-8785C
-Lw = height;
+Lw = height/2;
 Lu = height / (0.177+0.000823*height)^1.2;
-Lv = Lu;
+Lv = Lu/2;
 
 Vwind = Vwind*meter2feet;
 % Wind Speed @ 20ft
@@ -34,12 +34,16 @@ num=1;
 den=[Lu/Vwind 1];
 gain=sigu * sqrt(2*Lu/(pi*Vwind));
 Hu = nd2sys(num, den, gain);
-% Y, Z
-num=[sqrt(3)*Lv/Vwind 1];
-den=[Lv/Vwind 1]; den=conv(den,den);
-gain=sigv*sqrt(Lv/(pi*Vwind));
+% Y
+num=[2*sqrt(3)*Lv/Vwind 1];
+den=[2*Lv/Vwind 1]; den=conv(den,den);
+gain=sigv*sqrt(2*Lv/(pi*Vwind));
 Hv = nd2sys(num, den, gain);
-Hw = Hv;
+% Z
+num=[2*sqrt(3)*Lw/Vwind 1];
+den=[2*Lw/Vwind 1]; den=conv(den,den);
+gain=sigv*sqrt(2*Lw/(pi*Vwind));
+Hw = nd2sys(num, den, gain);
 
 
 % unpack the transfer function to get space state equation

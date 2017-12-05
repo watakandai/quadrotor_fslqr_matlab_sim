@@ -49,18 +49,18 @@ DEBUG = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulation Initial Setup ------------------------------------------------
 t_start=0;
-t_end = 10;
+t_end = 20;
 dt = 0.01;
 T = t_start:dt:t_end;
 % Initial States
 X0 = [0 0 0 0 0 0 0 0 0 0 0 0]';
 U0 = [m*g 0 0 0]';
-
+    
 % Reference States
 Xref = [0 0 0 0]';  % x, y, z, psi
 % Xref = [0 0 0 0 0 0 0 0 0 0 0 0]';
 % Freq.
-W=logspace(-2,3,100);
+W=logspace(-4,3,100);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Main Simulation                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -110,7 +110,6 @@ setPosition=false;
 % WORST gain of CLOSED LOOP Transer Function 
 % checkSingularValue 
 %%
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                Wind Flag                               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +119,7 @@ freq = 0.5;
 % 111   == Continous Sine Wave
 % 1     == 1 Sine Wave
 % 3     == Dryden Wind
-flagWind=1; 
+flagWind=111;
 %%% Wind Stop Time
 % 0     == Wind Does not Stop
 % >0    == Time at Wind Stops
@@ -128,7 +127,7 @@ wind_stop_time = 5;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              Rungekutta                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% rungekutta simulatio  n
+% rungekutta simulation
 rungekutta
 rungekutta_lqr
 % Set 0 Just for visualization when the other controller diverges (== Hassann) 
@@ -142,6 +141,7 @@ if lqr_off == true
     Xlqr_data = zeros(size(Xlqr_data));
     Ulqr_data = zeros(size(Ulqr_data));
 end
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Figures                                  %
@@ -150,19 +150,23 @@ end
 % 0     == no limit
 % >0    == limit in figure
 limit = 0;
-
+legendPos = [0.1148 0.9208 0.4571 0.0440];
+% h = get(gcf, 'Children')
+% set(h(3), 'Position', [0.1148 0.9265 0.8127 0.0709])
+% set(hd, 'Position', [0.1148 0.9265 0.8127 0.0709])
+% legendPos = 'north';
+% originalOrange = [0.85 0.325 0.098]
+% originalBlue = [0.0 0.447 0.741]
 % f, tx, ty, tz
-success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input, limit);
+success = draw_input(T, U_data, Ulqr_data, XLabels, YLabels_input, limit, legendPos);
 % phi, th, psi, p, q, r
-success = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
+hd = draw_rotational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit, legendPos);
 % x, y, z, u, v, w,
-success = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit);
-success = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit);
-[f, Px, Pxlqr] = draw_fft(T, dt, X_data, Xlqr_data, Vw_data); 
-Px=Px'; f=f';
+hd = draw_translational_motion(T, X_data, Xlqr_data, XLabels, YLabels, limit, legendPos);
+hd3 = draw_3d_animation(T, X_data, Xlqr_data, l, dt, t_end, limit, legendPos);
+[f, Px, Pxlqr, h] = draw_fft(T, dt, T_data, X_data, Xlqr_data, Vw_data, legendPos, XLabels, YLabels); 
 
-figure
-plot(T_data, Vw_data); grid on;
+
 %%
 % OpenLoop Analysis (LQR)
 %{

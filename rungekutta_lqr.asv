@@ -26,6 +26,7 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     T_data(:,t)  = t*dt;                        % time  t
     Xlqr_data(:,t)  = X;                         % state x
     Ulqr_data(:,t) = U;                            % input u
+    Vwlqr_data(:,t) = Vw ;
     PhiRefLqr_data(:,t) = phi_ref;
     ThRefLqr_data(:,t) = th_ref;
     Ephi_data(:,t) = Ephi;
@@ -33,7 +34,7 @@ for t=1:(length(T))     % t=0 ~ t=t_end
     Epsi_data(:,t) = Epsi;
     Ee_data(:,t) = Ee;
     
-    Vw = Vw_data(:,t);
+    Vw = 
     % ------------------------- For Plant ---------------------------%
 %     [Vw, Vx] = setDisturbance(flagWind, Vx, Au, Av, Aw, Bu, Bv, Bw, Cwind, t, dt, freq, Amp, wind_stop_time);
   
